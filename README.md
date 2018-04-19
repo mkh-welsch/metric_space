@@ -3,30 +3,6 @@ A templated, header only and hopefully in future (not yet) thread safe C++14 imp
 
 It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a millisecond.
 
-## details
-data record = a set of values, a row in a table, data point, etc. all records contain the same paramters, but with different values.
-
-n = number of data records.
-
-distance = one value, that represents the similarty of two data records. less distance = more similar. for geometric points, it is just the geometric distance. for high dimensional points it's exatly the same math, but called euclidian distance or L2 Metric. But there are other Metrics as well, who sometimes works better.
-
-tree implementation is based on the cover tree (https://en.wikipedia.org/wiki/Cover_tree),
-that means in comparsion to a binary search tree, an additionally "covering" distance (that only depends on the tree level) compared with the actual metric between the data records decides, if a data record becomes a sibling or a child in the tree.
-
-Benefits in Comparsion to a brute force search over all data
-```
-            std::vector<data_record>  metric_search::tree<data_record>
-add record:      0                       log(n)
-find nn record:  n                       log(n)
-```
-
-Implementation Cons:
-The Tree is not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
-
-I'm working on a balancing of the tree, which hopefully solves this basic issue.
-
-The overhead of every data records is ca. 64 Byte, to handle the nodes.
-
 ## simple example
 build the tree, search for a data record and invastigate the tree structure.
 ```c++
@@ -236,4 +212,26 @@ std::cout << "tree of " << (rec_count*threads) << " curves build in " << insert_
 return 0;
 }
 ```
+## details
+data record = a set of values, a row in a table, data point, etc. all records contain the same paramters, but with different values.
 
+n = number of data records.
+
+distance = one value, that represents the similarty of two data records. less distance = more similar. for geometric points, it is just the geometric distance. for high dimensional points it's exatly the same math, but called euclidian distance or L2 Metric. But there are other Metrics as well, who sometimes works better.
+
+tree implementation is based on the cover tree (https://en.wikipedia.org/wiki/Cover_tree),
+that means in comparsion to a binary search tree, an additionally "covering" distance (that only depends on the tree level) compared with the actual metric between the data records decides, if a data record becomes a sibling or a child in the tree.
+
+Benefits in Comparsion to a brute force search over all data
+```
+            std::vector<data_record>  metric_search::tree<data_record>
+add record:      0                       log(n)
+find nn record:  n                       log(n)
+```
+
+Implementation Cons:
+The Tree is not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
+
+I'm working on a balancing of the tree, which hopefully solves this basic issue.
+
+The overhead of every data records is ca. 64 Byte, to handle the nodes.
