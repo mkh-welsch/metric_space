@@ -1,7 +1,7 @@
 # metric_search
-A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a metric search tree. The Metric Search Tree works like a std-container to store some data of same type/structure. Basically a Metric Search Tree has the same principle idea as a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. 
+A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a Metric Search Tree. The Metric Search Tree works like a std-container to store data of same type/structure. Basically a Metric Search Tree has the same principle like a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. 
 
-It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a millisecond.
+It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a few milliseconds.
 
 ## simple example
 build the tree, search for a data record and invastigate the tree structure.
