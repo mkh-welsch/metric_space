@@ -38,8 +38,8 @@ cTree.insert(v7);
 /*** find the nearest neighbour of a data record ***/
 std::vector<double> v8 = {2, 8, 2, 1, 0, 0, 0, 0};
 auto nn = cTree.nn(v8);
-std::cout << "nn is " << nn->ID << std::endl; 
-// --> nn is 7
+std::cout << "nn of v8 is v" << nn->ID << std::endl; 
+// --> nn of v8 is v7
 
 cTree.insert(v8);
 
