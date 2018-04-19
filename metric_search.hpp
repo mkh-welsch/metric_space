@@ -1,4 +1,4 @@
-﻿/* Signal Epowering Technology   
+﻿/* Signal Empowering Technology   
                        
 presents
 
@@ -11,139 +11,18 @@ presents
                                                                             Licensed under MPL 2.0. 
                                                                             Michael Welsch (c) 2018.
                                                                                                    
-a library for metric search algorithmen and data containers
+a library for metric search algorithms and data containers
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Short summary of the MPL 2.0 intention:
+Summary of the MPL 2.0 intention:
 Use it as you like, but if you make changes, you must make the source 
-code available under MPL again. So, keep the MPL Software in separated 
+code available under MPL 2.0 again. So keep this code in separated 
 files, to get not in conflict with other licences. */
 
-/*** Usage with default L2 metric for abitrary stl containers. ***/
 
-/*
-#include "metric_search.hpp"
-
-int main()
-{
-// here are some data records
-std::vector<Distance> v0{0, 1, 1, 1, 1, 1, 2, 3};
-std::vector<Distance> v1{1, 1, 1, 1, 1, 2, 3, 4};
-std::vector<Distance> v2{2, 2, 2, 1, 1, 2, 0, 0};
-std::vector<Distance> v3{3, 3, 2, 2, 1, 1, 0,0};
-std::vector<Distance> v4{4, 3, 2, 1, 0, 0, 0, 0};
-std::vector<Distance> v5{5, 3, 2, 1, 0, 0, 0, 0};
-std::vector<std::vector<Distance>> datafield;
-datafield.push_back(v0); datafield.push_back(v1); datafield.push_back(v2); datafield.push_back(v3); datafield.push_back(v4); datafield.push_back(v5);
-
-//initialize the tree
-metric_search::Tree<vector<Distance>> cTree;
-// metric_search::Tree<vector<Distance>> cTree(v0); // alternative
-// metric_search::Tree<vector<Distance>> cTree(datafield); // alternative
-
-// add data records
-cTree.push(v1); // pushes the data records into the tree
-
-// add data record under user definied conditions
-auto compare_fun1 = [](distance){return (dist(_p) =! distance);}; // record allready exists (default behaviour)
-auto compare_fun2 = [](distance){return (dist(_p) < distance);}; // insert only by distance under a threshold.
-bool idx cTree.insert(v2, compare_fun); // inserts the data record with lambda function check, gives back the new index if iserted or the colling index of the check
-
-// access data records
-auto data_record = cTree[1] // gives back v1
-cTree[1] = v3; // change record (avoid this expansiv opteration, because in the tree it can't be overriden und must be earesed and pushed again.)
-
-//erase data record
-auto data_erased = cTree.erase(5); // erases the 5. data record and give it back
-
-// find data record
-auto data_nn = cTree.nn(v_test); // nearest neigbour
-auto vector_of_data_knn = cTree.knn(v_test,3); // k nearest neigbours
-auto vector_of_data_ranged = cTree.range(v_test,v1); //gives back the data record in an std::vector.
-
-// tree properties
-auto tree_size = cTree.size();
-
-// import data
-metric_search::Tree<vector<Distance>> cTree1(container_of_data_records);
-metric_search::Tree<vector<Distance>> cTree2(container_of_data_records.begin(),container_of_data_records.end());
-auto vector_of_select_data = cTree.toVector(cTree.begin()+1,cTree.end()-2);
-
-// export data
-auto vector_of_complete_data = cTree.toVector();
-auto vector_of_select_data = cTree.toVector(cTree.begin()+1,cTree.end()-2);
-
-return 0;
-} 
-*/
-
-/*** Use with custom Metric ***/
-
-/*
-#include <eigen3/Eigen/Core> // path to Eigen lib
-#include <blaze/Math.h> // path to Blaze Lib
-#include "metric_search.hpp"
-
-// custom Metric for STL Containers.
-template <typename Container>
-struct customMetric
-{
-    typedef typename Container::value_type T;
-    static_assert(
-        std::is_floating_point<T>::value, "T must be a float type");
-
-    T operator()(const Container &a, const Container &b) const
-    {
-        T sum = 0;
-        for (auto it1 = a.begin(), it2 = b.begin(); it1 != a.end() || it2 != b.end(); ++it1, ++it2)
-        {
-            sum += (*it1 - *it2) * (*it1 - *it2);
-        }
-
-        return std::sqrt(sum);
-    }
-};
-
-// L2 Metric for Eigen Vector
-template <typename T>
-struct recMetric_Eigen
-{
-    T operator()(const Eigen::VectorXd &p, const Eigen::VectorXd &q) const
-    {
-        return (p - q).norm();
-    }
-};
-typedef Eigen::VectorXd recType_Eigen;
-
-// L2 Metric for Blaze Vector
-template <typename T>
-struct recMetric_Blaze
-{
-    T operator()(const blaze::DynamicVector<T> &p, const blaze::DynamicVector<T> &q) const
-    {
-        return blaze::l2Norm(p - q);
-    }
-};
-
-
-
-
-int main()
-{
-metric_search::Tree<deque<Distance>,customMetric<Distance>> cTree1;
-
-metric_search::Tree<recType_Eigen,recMetric_Eigen> cTree2;
-
-metric_search::Tree<blaze::DynamicVector<Distance>,recMetric_Blaze<Distance>> cTree3;
-
-return 0;
-}
-
-
-*/
 #ifndef _METRIC_SEARCH_HPP
 #define _METRIC_SEARCH_HPP
 
