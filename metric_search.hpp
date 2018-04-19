@@ -17,11 +17,10 @@ This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Summary of the MPL 2.0 intention:
+The MPL 2.0 intention:
 Use it as you like, but if you make changes, you must make the source 
 code available under MPL 2.0 again. So keep this code in separated 
 files, to get not in conflict with other licences. */
-
 
 #ifndef _METRIC_SEARCH_HPP
 #define _METRIC_SEARCH_HPP
@@ -114,7 +113,7 @@ public:
   recType operator[](size_t id); // access a data record by ID
 
   /*** Nearest Neighbour search ***/
-Node_ptr nn(const recType &p) const;                                                // nearest Neighbour
+  Node_ptr nn(const recType &p) const;                                                                     // nearest Neighbour
   std::vector<std::pair<Node_ptr, Distance>> knn(const recType &p, unsigned k = 10) const;                 // k-Nearest Neighbours
   std::vector<std::pair<Node_ptr, Distance>> range(const recType &queryPt, Distance distance = 1.0) const; // Range Search
 

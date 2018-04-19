@@ -4,7 +4,6 @@ This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
 
-
 #include "metric_search.hpp" // back reference for header only use
 
 namespace metric_search
@@ -47,15 +46,15 @@ template <class recType, class Metric>
 class Tree<recType, Metric>::Node
 {
   public:
-  friend Tree<recType,Metric>;
-    Node(Distance base=Tree<recType,Metric>().base):base(base){}
-    ~Node(){}
+    friend Tree<recType, Metric>;
+    Node(Distance base = Tree<recType, Metric>().base) : base(base) {}
+    ~Node() {}
     typedef Tree<recType, Metric>::Node NodeType;
     typedef std::shared_ptr<Tree<recType, Metric>::Node> Node_ptr;
     typedef typename std::result_of<Metric(recType, recType)>::type Distance;
 
     Distance base;
-    recType data;      // data record associated with the node
+    recType data;    // data record associated with the node
     Node_ptr parent; // parent of current node
 
     std::vector<Node_ptr> children; // list of children
@@ -71,10 +70,10 @@ class Tree<recType, Metric>::Node
     Distance dist(const recType &pp) const; // distance between this node and point pp
     Distance dist(Node_ptr n) const;        // distance between this node and node n
 
-    Node_ptr setChild(const recType &pIns, int new_id = -1); // insert a new child of current node with point pIns
-    Node_ptr setChild(Node_ptr pIns, int new_id = -1);       // // insert the subtree pIns as child of current node (erase or reordering)
+    Node_ptr setChild(const recType &p, int new_id = -1); // insert a new child of current node with point p
+    Node_ptr setChild(Node_ptr p, int new_id = -1);       // // insert the subtree p as child of current node (erase or reordering)
 
-// setting iterators for children access in loops
+    // setting iterators for children access in loops
     typename std::vector<Node_ptr>::const_iterator begin() const
     {
         return children.cbegin();
@@ -132,13 +131,13 @@ Tree<recType, Metric>::Node::dist(Node_ptr n) const
     return Metric()(data, n->data);
 }
 
-/*** insert a new child of current node with point pIns ***/
+/*** insert a new child of current node with point p ***/
 template <class recType, class Metric>
 typename Tree<recType, Metric>::Node::Node_ptr
-Tree<recType, Metric>::Node::setChild(const recType &pIns, int new_id)
+Tree<recType, Metric>::Node::setChild(const recType &p, int new_id)
 {
     Node_ptr temp(new NodeType());
-    temp->data = pIns;
+    temp->data = p;
     temp->level = level - 1;
     temp->parent_dist = 0;
     temp->ID = new_id;
@@ -147,14 +146,14 @@ Tree<recType, Metric>::Node::setChild(const recType &pIns, int new_id)
     return temp;
 }
 
-/*** insert the subtree pIns as child of current node ***/
+/*** insert the subtree p as child of current node ***/
 template <class recType, class Metric>
 typename Tree<recType, Metric>::Node::Node_ptr
-Tree<recType, Metric>::Node::setChild(Node_ptr pIns, int new_id)
+Tree<recType, Metric>::Node::setChild(Node_ptr p, int new_id)
 {
-    if (pIns->level != level - 1)
+    if (p->level != level - 1)
     {
-        Node_ptr current = pIns;
+        Node_ptr current = p;
         std::stack<Node_ptr> travel;
         current->level = level - 1;
         travel.push(current);
@@ -172,9 +171,9 @@ Tree<recType, Metric>::Node::setChild(Node_ptr pIns, int new_id)
         }
     }
 
-    pIns->parent = this;
-    children.push_back(pIns);
-    return pIns;
+    p->parent = this;
+    children.push_back(p);
+    return p;
 }
 
 /*
@@ -223,9 +222,7 @@ Tree<recType, Metric>::Tree(const recType &p, int truncateArg /*=-1*/, Metric d)
 
 /*** default deconstructor **/
 template <class recType, class Metric>
- Tree<recType, Metric>::~Tree(){}
-
-
+Tree<recType, Metric>::~Tree() {}
 
 /*
                 |     __|  |    _)  |      |                 _ )        _ \ _)       |                           
@@ -235,7 +232,7 @@ template <class recType, class Metric>
 */
 template <class recType, class Metric>
 template <typename pointOrNodeType>
-std::tuple< std::vector<int>,std::vector<typename Tree<recType, Metric>::Distance> >
+std::tuple<std::vector<int>, std::vector<typename Tree<recType, Metric>::Distance>>
 Tree<recType, Metric>::sortChildrenByDistance(Node_ptr p, pointOrNodeType x) const
 {
     auto num_children = p->children.size();
@@ -344,8 +341,7 @@ bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id
     p->mut.lock_shared();
     unsigned num_children = p->children.size(); // for later check, if there is a change during the next steps
 
-
-    //auto[idx, dists] = sortChildrenByDistance(p, x); // C++17 will make this smarter 
+    //auto[idx, dists] = sortChildrenByDistance(p, x); // C++17 will make this smarter
     auto idx__dists = sortChildrenByDistance(p, x);
     auto idx = std::get<0>(idx__dists);
     auto dists = std::get<1>(idx__dists);
@@ -359,7 +355,7 @@ bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id
         {
             if (q->parent_dist < d)
             {
-                q->parent_dist = d; 
+                q->parent_dist = d;
             }
             p->mut.unlock_shared();
             result = insert_(q, x);
@@ -379,7 +375,7 @@ bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id
             if (new_id == -2)
             {
                 p->setChild(x, N); // this line behaves different by inserting a node or a record.
-            } 
+            }
             else
             {
                 p->setChild(x, new_id);
@@ -447,7 +443,6 @@ bool Tree<recType, Metric>::erase(const recType &p)
                 }
             }
 
-       
             root = node_s; // switch
             std::vector<std::pair<Node_ptr, Distance>> result3 = knn(node_p->data, 3);
             Node_ptr node_insert = result3[1].first;
@@ -526,7 +521,7 @@ void Tree<recType, Metric>::nn_(Node_ptr current, Distance dist_current, const r
     {
         Node_ptr child = current->children[child_idx];
         Distance dist_child = dists[child_idx];
-       
+
         if (nn.second > dist_child - child->parent_dist)
             nn_(child, dist_child, p, nn);
     }
@@ -570,8 +565,8 @@ void Tree<recType, Metric>::knn_(Node_ptr current, Distance dist_current, const 
         nnList.pop_back();
     }
 
-   //auto[idx, dists] = sortChildrenByDistance(current, p);
-        auto idx__dists = sortChildrenByDistance(current, p);
+    //auto[idx, dists] = sortChildrenByDistance(current, p);
+    auto idx__dists = sortChildrenByDistance(current, p);
     auto idx = std::get<0>(idx__dists);
     auto dists = std::get<1>(idx__dists);
 
@@ -614,7 +609,7 @@ void Tree<recType, Metric>::range_(Node_ptr current, Distance dist_current, cons
     }
 
     //auto[idx, dists] = sortChildrenByDistance(current, p);
-        auto idx__dists = sortChildrenByDistance(current, p);
+    auto idx__dists = sortChildrenByDistance(current, p);
     auto idx = std::get<0>(idx__dists);
     auto dists = std::get<1>(idx__dists);
 
@@ -712,7 +707,7 @@ int Tree<recType, Metric>::levelSize()
 template <class recType, class Metric>
 std::map<int, unsigned> Tree<recType, Metric>::print_levels()
 {
-      std::map<int, unsigned> level_count;
+    std::map<int, unsigned> level_count;
     std::stack<Node_ptr> stack;
     Node_ptr curNode;
     stack.push(root);

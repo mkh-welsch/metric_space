@@ -54,7 +54,14 @@ cTree.print();
 // |   └──(6)
 // └──(7)
 //     └──(8)
+
+return 0;}
+
 ```
+
+compile it for example with
+clang++ ./main.cpp -o ./main  -std=c++14
+
 
 ## Initialize a Tree
 Construct an empty tree, or fill it directly with data records.
