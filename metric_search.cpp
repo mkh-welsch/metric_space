@@ -220,6 +220,28 @@ Tree<recType, Metric>::Tree(const recType &p, int truncateArg /*=-1*/, Metric d)
     root->ID = 0;
 }
 
+/*** constructor: with a vector data records **/
+template <class recType, class Metric>
+Tree<recType, Metric>::Tree(const std::vector<recType> &p, int truncateArg /*=-1*/, Metric d)
+    : metric_(d)
+{
+    min_scale = 1000;
+    max_scale = 0;
+    truncate_level = truncateArg;
+    N = 1;
+
+    root = std::make_unique<NodeType>();
+    root->data = p[0];
+    root->level = 0;
+    root->parent_dist = 0;
+    root->ID = 0;
+
+    for (int i = 1; i < p.size(); ++i)
+    {
+        insert(p[i]);
+    }
+}
+
 /*** default deconstructor **/
 template <class recType, class Metric>
 Tree<recType, Metric>::~Tree() {}
@@ -253,6 +275,16 @@ Tree<recType, Metric>::sortChildrenByDistance(Node_ptr p, pointOrNodeType x) con
    |     \  (_-<   -_)   _| _| 
  ___| _| _| ___/ \___| _| \__|                            
 */
+/*** vector of data record insertion  **/
+template <class recType, class Metric>
+bool Tree<recType, Metric>::insert(const std::vector<recType> &p){
+    bool result;
+    for (auto rec : p){
+       result = insert(rec);
+    }
+return result;
+}
+
 /*** data record insertion **/
 template <class recType, class Metric>
 bool Tree<recType, Metric>::insert(const recType &p)
@@ -263,6 +295,8 @@ bool Tree<recType, Metric>::insert(const recType &p)
     // root insertion
     if (root == NULL)
     {
+        global_mut.unlock_shared();
+        global_mut.lock();
         min_scale = 1000;
         max_scale = 0;
         truncate_level = -1;
@@ -274,6 +308,9 @@ bool Tree<recType, Metric>::insert(const recType &p)
         root->parent_dist = 0;
         root->ID = 0;
         root->parent = NULL;
+
+        global_mut.unlock();
+        global_mut.lock_shared();
     }
 
     // normal insertion
@@ -335,13 +372,10 @@ bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id
     bool result = false;
     bool flag = true;
 
-    if (truncate_level > 0 && p->level < max_scale - truncate_level)
-        return false;
-
     p->mut.lock_shared();
     unsigned num_children = p->children.size(); // for later check, if there is a change during the next steps
 
-    //auto[idx, dists] = sortChildrenByDistance(p, x); // C++17 will make this smarter
+    //auto[idx, dists] = sortChildrenByDistance(p, x); // can't wait C++17 ^^
     auto idx__dists = sortChildrenByDistance(p, x);
     auto idx = std::get<0>(idx__dists);
     auto dists = std::get<1>(idx__dists);
@@ -538,7 +572,6 @@ std::vector<std::pair<typename Tree<recType, Metric>::Node_ptr, typename Tree<re
 Tree<recType, Metric>::knn(const recType &queryPt, unsigned numNbrs) const
 {
     // Do the worst initialization
-
     std::pair<std::shared_ptr<NodeType>, Distance> dummy(std::make_unique<NodeType>(), std::numeric_limits<Distance>::max());
     // List of k-nearest points till now
     std::vector<std::pair<std::shared_ptr<NodeType>, Distance>> nnList(numNbrs, dummy);
@@ -553,8 +586,6 @@ Tree<recType, Metric>::knn(const recType &queryPt, unsigned numNbrs) const
 template <class recType, class Metric>
 void Tree<recType, Metric>::knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList) const
 {
-    // TODO: An efficient implementation ?
-
     if (dist_current < nnList.back().second) // If the current node is eligible to get into the list
     {
         auto comp_x = [](std::pair<Node_ptr, Distance> a, std::pair<Node_ptr, Distance> b) { return a.second < b.second; };
@@ -588,18 +619,18 @@ Range Neighbours Search
 */
 template <class recType, class Metric>
 std::vector<std::pair<typename Tree<recType, Metric>::Node_ptr, typename Tree<recType, Metric>::Distance>>
-Tree<recType, Metric>::range(const recType &queryPt, Distance distance) const
+Tree<recType, Metric>::rnn(const recType &queryPt, Distance distance) const
 {
 
-    std::vector<std::pair<Node_ptr, Distance>> nnList; // List of nearest neighbors in the range
+    std::vector<std::pair<Node_ptr, Distance>> nnList; // List of nearest neighbors in the rnn
 
     Distance dist_root = root->dist(queryPt);
-    range_(root, dist_root, queryPt, distance, nnList); // Call with root
+    rnn_(root, dist_root, queryPt, distance, nnList); // Call with root
 
     return nnList;
 }
 template <class recType, class Metric>
-void Tree<recType, Metric>::range_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const
+void Tree<recType, Metric>::rnn_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const
 {
 
     if (dist_current < distance) // If the current node is eligible to get into the list
@@ -618,7 +649,7 @@ void Tree<recType, Metric>::range_(Node_ptr current, Distance dist_current, cons
         Node_ptr child = current->children[child_idx];
         Distance dist_child = dists[child_idx];
         if (distance > dist_child - child->parent_dist)
-            range_(child, dist_child, p, distance, nnList);
+            rnn_(child, dist_child, p, distance, nnList);
     }
 }
 
@@ -792,14 +823,14 @@ char depth[2056];
 int di = 0;
 
 template <class recType, class Metric>
-void Tree<recType, Metric>::printTree()
+void Tree<recType, Metric>::print()
 {
 
-    printTree_(root.get());
+    print_(root.get());
 }
 
 template <class recType, class Metric>
-void Tree<recType, Metric>::printTree_(NodeType *node_p)
+void Tree<recType, Metric>::print_(NodeType *node_p)
 {
 
     auto push = [&](char c) {
@@ -849,7 +880,7 @@ void Tree<recType, Metric>::printTree_(NodeType *node_p)
         }
         push((next && i < node_p->children.size() - 1) ? '|' : ' ');
         //push2((next && i<node_p->children.size()-1) ? "│" : " ");
-        printTree_(child);
+        print_(child);
         pop();
         //pop2();
         child = next;

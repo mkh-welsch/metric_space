@@ -38,16 +38,6 @@ files, to get not in conflict with other licences. */
 
 namespace metric_search
 {
-
-/*
-  |   |                   |                     
-  |   |   _ \   _` |   _` |   _ \   __|         
-  ___ |   __/  (   |  (   |   __/  |            
- _|  _| \___| \__,_| \__,_| \___| _|            
-                                                                                                                
-*/
-/*** class for each node of the tree ***/
-
 /*
   _ \         _|             |  |       \  |        |       _)      
   |  |  -_)   _| _` |  |  |  |   _|    |\/ |   -_)   _|   _| |   _| 
@@ -97,39 +87,43 @@ private:
 
   void nn_(Node_ptr current, Distance dist_current, const recType &p, std::pair<Node_ptr, Distance> &nn) const;
   void knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
-  void range_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
+  void rnn_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
 
-  void printTree_(NodeType *node_p);
+  void print_(NodeType *node_p);
 
 public:
-  /*** Coonstructors ***/
-  Tree(int truncate = -1, Metric d = Metric());                   // empty tree
-  Tree(const recType &p, int truncate = -1, Metric d = Metric()); // cover tree with one data record as root
-  ~Tree();                                                        // Destuctor
+  /*** Constructors ***/
+  Tree(int truncate = -1, Metric d = Metric());                                // empty tree
+  Tree(const recType &p, int truncate = -1, Metric d = Metric());              // cover tree with one data record as root
+  Tree(const std::vector<recType> &p, int truncate = -1, Metric d = Metric()); // with a vector of data records
+  ~Tree();                                                                     // Destuctor
 
   /*** Access Operations ***/
-  bool insert(const recType &p); // insert data record into the cover tree
-  bool erase(const recType &p);  // erase data record into the cover tree
-  recType operator[](size_t id); // access a data record by ID
+  bool insert(const recType &p);              // insert data record into the cover tree
+  bool insert(const std::vector<recType> &p); // insert data record into the cover tree
+  bool erase(const recType &p);               // erase data record into the cover tree
+  recType operator[](size_t id);              // access a data record by ID
 
   /*** Nearest Neighbour search ***/
-  Node_ptr nn(const recType &p) const;                                                                     // nearest Neighbour
-  std::vector<std::pair<Node_ptr, Distance>> knn(const recType &p, unsigned k = 10) const;                 // k-Nearest Neighbours
-  std::vector<std::pair<Node_ptr, Distance>> range(const recType &queryPt, Distance distance = 1.0) const; // Range Search
+  Node_ptr nn(const recType &p) const;                                                                   // nearest Neighbour
+  std::vector<std::pair<Node_ptr, Distance>> knn(const recType &p, unsigned k = 10) const;               // k-Nearest Neighbours
+  std::vector<std::pair<Node_ptr, Distance>> rnn(const recType &queryPt, Distance distance = 1.0) const; // Range Search
+
+  /*** utilitys ***/
+  size_t size(); // return node size.
+  void traverse(const std::function<void(Node_ptr)> &f);
 
   /** Dev Tools **/
   int levelSize();                        // return the max_level of the tree (= root level)
   std::map<int, unsigned> print_levels(); // print and return level informations
-  size_t size();                          // return node size.
-  std::vector<recType> toVector();        // return all records in the tree in a std::vector
+
+  std::vector<recType> toVector(); // return all records in the tree in a std::vector
 
   bool check_covering() const;
   bool check_covering2() const;
   bool repair_covering();
-  void printTree();
-
+  void print();
   void shift_level(int level);
-  void traverse(const std::function<void(Node_ptr)> &f);
   void traverse_child(const std::function<void(Node_ptr)> &f);
 };
 
