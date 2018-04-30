@@ -238,6 +238,11 @@ find nn record:  n                       log(n)
 Implementation Cons:
 The Tree is currently not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
 
-I'm working on a balancing, which hopefully solves this issue. for pratice check the tree.max_level or print the tree to check the growing. The level should be not very higher than log(n).
+I'm working on a balancing, which hopefully solves this issue. for pratice check the tree.max_level or print the tree to check the growing. The max_level should not be much bigger than log(n).
 
 The overhead of every data records is ca. 64 Byte to handle the nodes.
+
+Other CoverTree Implementations can be found here, but each is missing some functionality, that drives me to this new approach. It can be seen as bringing togehter all the good ideas.
+https://gitlab.com/christoph-conrads/cover-tree
+https://github.com/DNCrane/Cover-Tree
+https://github.com/manzilzaheer/CoverTree
