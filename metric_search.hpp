@@ -17,10 +17,7 @@ This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-The MPL 2.0 intention:
-Use it as you like, but if you make changes, you must make the source 
-code available under MPL 2.0 again. So keep this code in separated 
-files, to get not in conflict with other licences. */
+*/
 
 #ifndef _METRIC_SEARCH_HPP
 #define _METRIC_SEARCH_HPP
@@ -115,15 +112,12 @@ public:
 
   /** Dev Tools **/
   int levelSize();                        // return the max_level of the tree (= root level)
+  void print();
   std::map<int, unsigned> print_levels(); // print and return level informations
 
   std::vector<recType> toVector(); // return all records in the tree in a std::vector
 
   bool check_covering() const;
-  bool check_covering2() const;
-  bool repair_covering();
-  void print();
-  void shift_level(int level);
   void traverse_child(const std::function<void(Node_ptr)> &f);
 };
 

@@ -1,8 +1,7 @@
-/* Michael Welsch (c) 2018
-
-This Source Code Form is subject to the terms of the Mozilla Public
+/*This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
+/* Michael Welsch (c) 2018 */
 
 #include "metric_search.hpp" // back reference for header only use
 
@@ -596,7 +595,6 @@ void Tree<recType, Metric>::knn_(Node_ptr current, Distance dist_current, const 
         nnList.pop_back();
     }
 
-    //auto[idx, dists] = sortChildrenByDistance(current, p);
     auto idx__dists = sortChildrenByDistance(current, p);
     auto idx = std::get<0>(idx__dists);
     auto dists = std::get<1>(idx__dists);
@@ -840,24 +838,9 @@ void Tree<recType, Metric>::print_(NodeType *node_p)
         depth[di++] = ' ';
         depth[di] = 0;
     };
-    auto push2 = [&](std::string c) {
-        depth2.append(" ");
-        di++;
-        depth2.append(c);
-        di++;
-        depth2.append(" ");
-        di++;
-        depth2.append(" ");
-        di++;
-        //depth2[di]=0;
-    };
 
     auto pop = [&]() {
         depth[di -= 4] = 0;
-    };
-
-    auto pop2 = [&]() {
-        depth2[di -= 4] = 0;
     };
 
     std::cout << "(" << node_p->ID << ")" << std::endl;
@@ -879,35 +862,12 @@ void Tree<recType, Metric>::print_(NodeType *node_p)
             std::cout << " └──";
         }
         push((next && i < node_p->children.size() - 1) ? '|' : ' ');
-        //push2((next && i<node_p->children.size()-1) ? "│" : " ");
         print_(child);
         pop();
-        //pop2();
         child = next;
     }
 }
 
-// template <class recType, class Metric>
-// void Tree<recType, Metric>::traverse()
-// {
-
-//     traverse_(root);
-// }
-
-// template <class recType, class Metric>
-// void Tree<recType, Metric>::traverse_(Node_ptr node_p)
-// {
-
-//     std::cout << "ID:" << node_p->ID << std::endl;
-
-//     Node_ptr child = node_p->children[0];
-//     for (int i = 0; i < node_p->children.size(); ++i)
-//     {
-//         Node_ptr next = node_p->children[i + 1];
-//         traverse_(child);
-//         child = next;
-//     }
-// }
 
 /*** traverse the tree from root and do something with every node ***/
 template <class recType, class Metric>
@@ -922,7 +882,7 @@ void Tree<recType, Metric>::traverse(const std::function<void(Node_ptr)> &f)
     {
         curNode = nodeStack.top();
         nodeStack.pop();
-        f(curNode); // .. and callback the node.
+        f(curNode); // .. and callback each node.
         for (const auto &child : *curNode)
         {
             nodeStack.push(child);
@@ -943,40 +903,11 @@ void Tree<recType, Metric>::traverse_child(const std::function<void(Node_ptr)> &
         nodeStack.pop();
         for (const auto &child : *curNode)
         {
-            nodeStack.push(child); //.. and callback on child nodes.
+            nodeStack.push(child); //.. and callback all child nodes.
             f(child);
         }
     }
     return;
-}
-
-template <class recType, class Metric>
-bool Tree<recType, Metric>::check_covering2() const
-{
-    bool result = true;
-    std::stack<Node_ptr> nodeStack;
-    Node_ptr curNode;
-    nodeStack.push(root);
-
-    while (nodeStack.size() > 0)
-    {
-        // Pop
-        curNode = nodeStack.top();
-        nodeStack.pop();
-
-        // Check covering for the current -> children pair
-        for (const auto &child : *curNode)
-        {
-            nodeStack.push(child);
-            if (curNode->dist(child) > curNode->covdist())
-            {
-                std::cout << "covering ill here " << curNode->ID << std::endl;
-                result = false;
-            }
-        }
-    }
-
-    return result;
 }
 
 } // end namespace
