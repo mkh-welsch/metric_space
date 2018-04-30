@@ -1,7 +1,7 @@
 # metric_search
-A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a metric search tree. The Metric Search Tree works like a std-container to store some data of same type/structure. Basically a Metric Search Tree has the same principle idea as a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. 
+A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a Metric Search Tree. The Metric Search Tree works like a std-container to store data of same type/structure. Basically a Metric Search Tree has the same principle like a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. 
 
-It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a millisecond.
+It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a few milliseconds.
 
 ## simple example
 build the tree, search for a data record and invastigate the tree structure.
@@ -38,8 +38,8 @@ cTree.insert(v7);
 /*** find the nearest neighbour of a data record ***/
 std::vector<double> v8 = {2, 8, 2, 1, 0, 0, 0, 0};
 auto nn = cTree.nn(v8);
-std::cout << "nn is " << nn->ID << std::endl; 
-// --> nn is 7
+std::cout << "nn of v8 is v" << nn->ID << std::endl; 
+// --> nn of v8 is v7
 
 cTree.insert(v8);
 
@@ -226,10 +226,10 @@ n = number of data records.
 
 distance = one value, that represents the similarty of two data records. less distance = more similar. for geometric points, it is just the geometric distance. for high dimensional points it's exatly the same math, but called euclidian distance or L2 Metric. But there are other Metrics as well, who sometimes works better.
 
-tree implementation is based on the cover tree (https://en.wikipedia.org/wiki/Cover_tree),
-that means in comparsion to a binary search tree, an additionally "covering" distance (that only depends on the tree level) compared with the actual metric between the data records decides, if a data record becomes a sibling or a child in the tree.
+The Tree Implementation is based on the Cover Tree Approach (https://en.wikipedia.org/wiki/Cover_tree),
+that means in comparsion to a binary search tree an additionally "covering" distance (that only depends on the tree level) in comparison with the actual metric between the data records decides, if a data record becomes a sibling or a child in the tree.
 
-Benefits in Comparsion to a brute force search over all data
+Benefits in comparsion to a brute force search over all data
 ```
             std::vector<data_record>  metric_search::tree<data_record>
 add record:      0                       log(n)
@@ -239,6 +239,6 @@ find nn record:  n                       log(n)
 Implementation Cons:
 The Tree is not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
 
-I'm working on a balancing of the tree, which hopefully solves this basic issue.
+I'm working on a tree balancing, which hopefully solves this issue.
 
-The overhead of every data records is ca. 64 Byte, to handle the nodes.
+The overhead of every data records is ca. 64 Byte to handle the nodes navigation.
