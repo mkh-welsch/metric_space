@@ -41,7 +41,7 @@ int main(){
 
 metric_search::Tree<blaze::CompressedVector<double>, recMetric_Blaze<double>> cTree;
     
-int rec_count = 25000;
+int n_records = 25000;
 int rec_dim = 100;
 int threads = 4;
 
@@ -49,7 +49,7 @@ int threads = 4;
 std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now(); // start inserting
 std::vector<std::thread> inserter;
 for (int i=0;i<threads;++i){
-    inserter.push_back(std::thread(insert_random<blaze::CompressedVector<double>, recMetric_Blaze<double>>, std::ref(cTree), rec_count, rec_dim));
+    inserter.push_back(std::thread(insert_random<blaze::CompressedVector<double>, recMetric_Blaze<double>>, std::ref(cTree), n_records, rec_dim));
 }
 for (int i=0;i<threads;++i){
     inserter[i].join();
@@ -65,7 +65,7 @@ std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution
 auto insert_time = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 auto nn_time = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
    
-std::cout << "tree of " << (rec_count*threads) << " curves build in " << insert_time / 1000.0 / 1000.0 << " seconds, " << "nn find in " << nn_time / 1000.0 / 1000.0 << " seconds, " << std::endl;
+std::cout << "tree of " << (n_records*threads) << " curves build in " << insert_time / 1000.0 / 1000.0 << " seconds, " << "nn find in " << nn_time / 1000.0 / 1000.0 << " seconds, " << std::endl;
     
 return 0;
 }

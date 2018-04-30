@@ -1,7 +1,7 @@
 # metric_search
-A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a Metric Search Tree. The Metric Search Tree works like a std-container to store data of same type/structure. Basically a Metric Search Tree has the same principle like a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. 
+A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a Metric Search Tree. A Search Tree works like a std-container to store data of some structure. Basically a Metric Search Tree has the same principle as a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. This Metric Search Tree is basically a Cover Tree Implementation. Additionally to the distiance (or similarity) between the data, a covering distance from level to level decides how the tree grows.
 
-It can be used to find similar sets of data in millions of data sets, that each contains hundreds of single values in a few milliseconds.
+It can be used to find similar sets of data in millions of data sets, each containing hundreds of single values in only a few milliseconds.
 
 ## simple example
 build the tree, search for a data record and invastigate the tree structure.
@@ -38,8 +38,7 @@ cTree.insert(v7);
 /*** find the nearest neighbour of a data record ***/
 std::vector<double> v8 = {2, 8, 2, 1, 0, 0, 0, 0};
 auto nn = cTree.nn(v8);
-std::cout << "nn of v8 is v" << nn->ID << std::endl; 
-// --> nn of v8 is v7
+std::cout << "nn of v8 is v" << nn->ID << std::endl;  // --> nn of v8 is v7
 
 cTree.insert(v8);
 
@@ -64,12 +63,12 @@ clang++ ./main.cpp -o ./main  -std=c++14
 
 
 ## Initialize a Tree
-Construct an empty tree, or fill it directly with data records.
+Construct an empty tree or fill it directly with data records.
 ```c++
 typedef std::vector<double> recType;
 typedef std::vector<recType> recList
 
-/*** Tree with default L2 metric (Euclidian distance measure) **/ 
+/*** Tree with default L2 metric (Euclidian distance measure) ***/ 
 metric_search::Tree<recType> cTree; //empty tree
 metric_search::Tree<recType> cTree(recType v1); // with one data record
 metric_search::Tree<recType> cTree(recList m1); // a container with records.
@@ -85,7 +84,7 @@ metric_search::Tree<recType,customMetric> cTree;
 /*** logarithmic complexity ***/
 auto nn = cTree.nn()                        // finds the nearest neighbour.
 auto knn = cTree.knn(5)                     // finds the fives nearest neighbours
-auto rnn = cTree.rnn(a_record,a_distance) // finds all neigbours in a_distance to a_record.
+auto rnn = cTree.rnn(a_record,a_distance)   // finds all neigbours in a_distance to a_record.
 
 /*** linear complexity***/
 // when data.sum() gives the sum of the data records elements  ...
@@ -100,9 +99,9 @@ cTree.traverse(
 
 ## access the nodes
 ```c++
-/*** access through pointers to the underlying data ***/
+/*** access through dereference to the underlying data ***/
 nn->ID          // gives the ID of the record. the ID is counted up like an vector index.
-nn->data        // gives the data record
+nn->data        // gives the data record of a node (every node contains data)
 nn->parent      // gives the parent node in the tree
 nn->children[0] // gives the first child node. (children is a std::vector)
 nn->parent_dist // gives the distance to the parent.
@@ -114,7 +113,7 @@ std::cout << q->ID << std::endl;
 }
 
 /*** access a single node by index ***/
-auto data_record = cTree[1]; // internaly just traverse throuh the tree and gives back the corresponding data record in linear complexity, avoid this.
+auto data_record = cTree[1]; // internaly it just traverse throuh the tree and gives back the corresponding data record in linear complexity, avoid this.
 ```
 
 ## use a custom container with custom metric
@@ -220,14 +219,14 @@ return 0;
 }
 ```
 ## details
-data record = a set of values, a row in a table, data point, etc. all records contain the same paramters, but with different values.
+data record = a set of values, a row in a table, a data point, etc. all records contain the same paramters, but with different values.
 
 n = number of data records.
 
 distance = one value, that represents the similarty of two data records. less distance = more similar. for geometric points, it is just the geometric distance. for high dimensional points it's exatly the same math, but called euclidian distance or L2 Metric. But there are other Metrics as well, who sometimes works better.
 
 The Tree Implementation is based on the Cover Tree Approach (https://en.wikipedia.org/wiki/Cover_tree),
-that means in comparsion to a binary search tree an additionally "covering" distance (that only depends on the tree level) in comparison with the actual metric between the data records decides, if a data record becomes a sibling or a child in the tree.
+that means in comparsion to a binary search tree an additionally "covering" distance (that only depends on the tree level) is used togehter with the actual metric between the data records. It decides if a data record becomes a sibling or a child in the tree.
 
 Benefits in comparsion to a brute force search over all data
 ```
@@ -237,8 +236,8 @@ find nn record:  n                       log(n)
 ```
 
 Implementation Cons:
-The Tree is not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
+The Tree is currently not balanced and can grow degenerative by building single long branches or bushy levels. In both extreme cases it is not better than simple brute force over an array.
 
-I'm working on a tree balancing, which hopefully solves this issue.
+I'm working on a balancing, which hopefully solves this issue. for pratice check the tree.max_level or print the tree to check the growing. The level should be not very higher than log(n).
 
-The overhead of every data records is ca. 64 Byte to handle the nodes navigation.
+The overhead of every data records is ca. 64 Byte to handle the nodes.

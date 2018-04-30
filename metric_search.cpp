@@ -787,33 +787,6 @@ bool Tree<recType, Metric>::check_covering() const
     return result;
 }
 
-template <class recType, class Metric>
-void Tree<recType, Metric>::shift_level(int level)
-{
-
-    std::stack<Node_ptr> stack;
-    Node_ptr curNode;
-
-    // Initialize with root
-    stack.push(root);
-
-    // Pop, check and then push the children
-    while (stack.size() > 0)
-    {
-        // Pop
-        curNode = stack.top();
-        stack.pop();
-        curNode->level += level;
-
-        // Check covering for the current -> children pair
-        for (const auto &child : *curNode)
-        {
-            stack.push(child);
-        }
-    }
-
-    return;
-}
 
 std::string depth2;
 
