@@ -4,7 +4,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
 /* Michael Welsch (c) 2018 */
 
 #include "metric_search.hpp" // back reference for header only use
-
+#include <functional>
+#include <algorithm>
 namespace metric_search
 {
 
@@ -148,7 +149,7 @@ Tree<recType, Metric>::Node::setChild(const recType &p, int new_id)
 /*** insert the subtree p as child of current node ***/
 template <class recType, class Metric>
 typename Tree<recType, Metric>::Node::Node_ptr
-Tree<recType, Metric>::Node::setChild(Node_ptr p, int new_id)
+Tree<recType, Metric>::Node::setChild(Node_ptr p, int /*new_id*/)
 {
     if (p->level != level - 1)
     {
@@ -278,10 +279,10 @@ Tree<recType, Metric>::sortChildrenByDistance(Node_ptr p, pointOrNodeType x) con
 template <class recType, class Metric>
 bool Tree<recType, Metric>::insert(const std::vector<recType> &p){
     bool result;
-    for (auto rec : p){
+    for (const auto & rec : p){
        result = insert(rec);
     }
-return result;
+    return result;
 }
 
 /*** data record insertion **/
@@ -294,8 +295,8 @@ bool Tree<recType, Metric>::insert(const recType &p)
     // root insertion
     if (root == NULL)
     {
-        global_mut.unlock_shared();
-        global_mut.lock();
+        global_mut.unlock_shared(); // FIXME: this is not atomic
+        global_mut.lock();          //
         min_scale = 1000;
         max_scale = 0;
         truncate_level = -1;
@@ -308,15 +309,15 @@ bool Tree<recType, Metric>::insert(const recType &p)
         root->ID = 0;
         root->parent = NULL;
 
-        global_mut.unlock();
-        global_mut.lock_shared();
+        global_mut.unlock();      // FIXME: this is not atomic
+        global_mut.lock_shared(); //
     }
 
     // normal insertion
     else if (root->dist(p) > root->covdist())
     {
-        global_mut.unlock_shared();
-        global_mut.lock();
+        global_mut.unlock_shared(); // FIXME: this is not atomic
+        global_mut.lock();          //
 
         while (root->dist(p) > base * root->covdist() / (base - 1))
         {
@@ -352,8 +353,8 @@ bool Tree<recType, Metric>::insert(const recType &p)
         root = temp;
         max_scale = root->level;
         result = true;
-        global_mut.unlock();
-        global_mut.lock_shared();
+        global_mut.unlock();         // FIXME: this is not atomic
+        global_mut.lock_shared();    //
     }
     else
     {
@@ -366,7 +367,7 @@ bool Tree<recType, Metric>::insert(const recType &p)
 /*** recursive insertion part ***/
 template <class recType, class Metric>
 template <typename pointOrNodeType>
-bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id)
+bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, int new_id)
 {
     bool result = false;
     bool flag = true;
@@ -399,8 +400,8 @@ bool Tree<recType, Metric>::insert_(Node_ptr p, pointOrNodeType x, size_t new_id
 
     if (flag)
     {
-        p->mut.unlock_shared();
-        p->mut.lock();
+        p->mut.unlock_shared(); // FIXME: this is not atomic operation
+        p->mut.lock();          //
 
         // if insert is not valid try again
         if (num_children == p->children.size())
@@ -460,7 +461,7 @@ bool Tree<recType, Metric>::erase(const recType &p)
             std::vector<std::pair<Node_ptr, Distance>> result2 = knn(node_p->data, 2);
 
             Node_ptr node_s = result2[1].first; // nn to root
-            int level = node_s->level;
+            //            int level = node_s->level;
             Node_ptr parent_s = node_s->parent;
 
             std::vector<Node_ptr> temp_childs(node_s->children);
@@ -816,11 +817,12 @@ void Tree<recType, Metric>::print_(NodeType *node_p)
         depth[di -= 4] = 0;
     };
 
-    std::cout << "(" << node_p->ID << ")" << std::endl;
-
+    std::cout << "(" << node_p->ID  << ',' << node_p->parent_dist << ',' << node_p->level << ',' << node_p->data<< ")" << std::endl;
+    if(node_p->children.empty())
+	return;
     NodeType *child = node_p->children[0].get();
 
-    for (int i = 0; i < node_p->children.size(); ++i)
+    for (std::size_t i = 0; i < node_p->children.size(); ++i)
     {
 
         NodeType *next = node_p->children[i + 1].get();

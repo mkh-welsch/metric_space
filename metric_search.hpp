@@ -32,7 +32,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #include <numeric>
 #include <cmath>
 #include <string>
-
+#include <functional>
 namespace metric_search
 {
 /*
@@ -80,7 +80,7 @@ private:
   sortChildrenByDistance(Node_ptr p, pointOrNodeType x) const;
 
   template <typename pointOrNodeType>
-  bool insert_(Node_ptr p, pointOrNodeType x, size_t new_id = -2);
+  bool insert_(Node_ptr p, pointOrNodeType x, int new_id = -2);
 
   void nn_(Node_ptr current, Distance dist_current, const recType &p, std::pair<Node_ptr, Distance> &nn) const;
   void knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
