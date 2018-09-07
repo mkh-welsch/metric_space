@@ -61,9 +61,11 @@ private:
   /*** Types ***/
   Metric metric_;
   typedef Tree<recType, Metric>::Node NodeType;
-  typedef std::shared_ptr<Tree<recType, Metric>::Node> Node_ptr;
+    //typedef std::shared_ptr<Tree<recType, Metric>::Node> Node_ptr;
+    typedef Tree<recType,Metric>::Node* Node_ptr;
   typedef Tree<recType, Metric> TreeType;
-  typedef typename std::result_of<Metric(recType, recType)>::type Distance;
+    //  typedef typename std::result_of<Metric(recType, recType)>::type Distance;
+    using Distance = typename std::result_of<Metric(recType,recType)>::type;
 
   /*** Properties ***/
   Distance base = 2;                  // Base for estemating the covering of the tree
@@ -72,7 +74,7 @@ private:
   std::atomic<int> max_scale;         // Minimum scale
   int truncate_level;                 // Relative level below which the tree is truncated
   std::atomic<unsigned> N;            // Number of points in the cover tree
-  std::shared_timed_mutex global_mut; // lock for changing the root
+  // std::shared_timed_mutex global_mut; // lock for changing the root
 
   /*** Imlementation Methodes ***/
   template <typename pointOrNodeType>
@@ -82,12 +84,16 @@ private:
   template <typename pointOrNodeType>
   bool insert_(Node_ptr p, pointOrNodeType x, int new_id = -2);
 
-  void nn_(Node_ptr current, Distance dist_current, const recType &p, std::pair<Node_ptr, Distance> &nn) const;
-  void knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
+    void nn_(Node_ptr current, Distance dist_current, const recType &p, std::pair<Node_ptr, Distance> &nn) const;
+    std::size_t knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList, std::size_t nnSize) const;
   void rnn_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
 
   void print_(NodeType *node_p);
 
+    Node_ptr merge(Node_ptr p, Node_ptr q);
+    std::pair<Node_ptr,std::vector<Node_ptr>> mergeHelper(Node_ptr p, Node_ptr q);
+    auto findAnyLeaf() -> Node_ptr;
+    void extractNode(Node_ptr node);
 public:
   /*** Constructors ***/
   Tree(int truncate = -1, Metric d = Metric());                                // empty tree
@@ -96,10 +102,12 @@ public:
   ~Tree();                                                                     // Destuctor
 
   /*** Access Operations ***/
-  bool insert(const recType &p);              // insert data record into the cover tree
-  bool insert(const std::vector<recType> &p); // insert data record into the cover tree
-  bool erase(const recType &p);               // erase data record into the cover tree
-  recType operator[](size_t id);              // access a data record by ID
+    bool insert(const recType &p);              // insert data record into the cover tree
+    bool insert_if(const recType &p, Distance treshold);              // insert data record into the cover tree only if distance bigger than a treshold
+    std::size_t insert_if(const std::vector<recType> &p, Distance treshold); // insert data record into the cover tree
+    bool insert(const std::vector<recType> &p); // insert data record into the cover tree
+    bool erase(const recType &p);               // erase data record into the cover tree
+    recType operator[](size_t id);              // access a data record by ID
 
   /*** Nearest Neighbour search ***/
   Node_ptr nn(const recType &p) const;                                                                   // nearest Neighbour
@@ -119,6 +127,15 @@ public:
 
   bool check_covering() const;
   void traverse_child(const std::function<void(Node_ptr)> &f);
+    Node_ptr get_root() {
+        return root;
+    }
+    bool empty() {
+        return root == nullptr;
+    }
+    int get_root_level() {
+        return root->level;
+    }
 };
 
 } // end namespace
