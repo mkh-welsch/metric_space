@@ -1,11 +1,13 @@
-find_package (Boost COMPONENTS unit_test_framework REQUIRED)
+find_package (Boost COMPONENTS unit_test_framework serialization REQUIRED)
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${Boost_INCLUDE_DIRS}
     )
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address -Wall -Wextra -Werror -g -std=c++14 -Ofast")
-set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address -g -std=c++14 -Ofast")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -fsanitize=address -Wall -Wextra -Werror -g -std=c++14 ")
+set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address -g -std=c++14 ")
 
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -Wall -Wextra -Werror -g -std=c++14 -fno-elide-constructors  -ftemplate-backtrace-limit=0")
+set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -g -std=c++14")
 
 #file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 AUX_SOURCE_DIRECTORY(. TEST_SRCS)

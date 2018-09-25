@@ -1,7 +1,19 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE test_api
 #include <boost/test/unit_test.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+
+#include <boost/serialization/nvp.hpp>
+
+//#include "3dparty/archive/archive.h"
+//#include "3dparty/serialize/archive.h"
 #include <iostream>
+#include <vector>
 #include "metric_search.hpp"
 template<typename T>
 struct distance {
@@ -85,3 +97,11 @@ BOOST_AUTO_TEST_CASE(test_insert_if) {
     BOOST_TEST(!tree.insert_if(14,10));
     BOOST_TEST(tree.insert_if(26,10));
 }
+
+BOOST_AUTO_TEST_CASE(test_insert2) {
+  std::vector<int> data = {7,8,9,10,11,12,13};
+  metric_search::Tree<int,distance<int>> tree;
+  tree.insert(data);
+  tree.print();
+}
+
