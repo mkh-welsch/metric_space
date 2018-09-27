@@ -54,7 +54,7 @@ int main()
 
     cTree2.insert(table2);
 
-    cTree2.print();
+    //cTree2.print();
 
     return 0;
 }
