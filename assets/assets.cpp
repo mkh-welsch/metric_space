@@ -19,7 +19,7 @@ smoothDenoise(std::vector<T> const &data, T const &tresh)
     keepNext = false;
 
     //iterator through data
-    for (int i = 0; i < data.size(); i++)
+    for (std::size_t i = 0; i < data.size(); i++)
     {
         if (data[i] != T(0))
         {
@@ -103,11 +103,11 @@ zeroPad(blaze::CompressedVector<T> const &data)
             index_last = index;
         }
 
-        if (index_last < data.size() - 2) // vorletzter nicht vorhanden
+        if (index_last < int(data.size()) - 2) // vorletzter nicht vorhanden
         {
             data_zeropadded.append(index_last + 1, T(0));
         }
-        if (index_last < data.size() - 1)
+        if (index_last < int(data.size()) - 1)
         {
             data_zeropadded.append(data.size() - 1, T(0));
         }

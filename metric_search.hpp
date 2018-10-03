@@ -33,6 +33,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #include <cmath>
 #include <string>
 #include <functional>
+#include <tuple>
 namespace metric_search
 {
 /*
@@ -45,6 +46,11 @@ namespace metric_search
 template <typename Container>
 struct L2_Metric_STL;
 
+template<typename, typename>
+struct SerializedNode;
+
+template<typename, typename>
+class Node;
 /*
  __ __|              
     |   _| -_)   -_) 
@@ -56,13 +62,13 @@ template <class recType, class Metric = L2_Metric_STL<recType>>
 class Tree
 {
 private:
-  class Node; // Node Class (see implementation for details)
-
+  //  class Node; // Node Class (see implementation for details)
+  friend class Node<recType, Metric>;
   /*** Types ***/
   Metric metric_;
-  typedef Tree<recType, Metric>::Node NodeType;
+  typedef Node<recType,Metric> NodeType;
     //typedef std::shared_ptr<Tree<recType, Metric>::Node> Node_ptr;
-    typedef Tree<recType,Metric>::Node* Node_ptr;
+    typedef Node<recType,Metric>* Node_ptr;
   typedef Tree<recType, Metric> TreeType;
     //  typedef typename std::result_of<Metric(recType, recType)>::type Distance;
     using Distance = typename std::result_of<Metric(recType,recType)>::type;
@@ -88,13 +94,29 @@ private:
     std::size_t knn_(Node_ptr current, Distance dist_current, const recType &p, std::vector<std::pair<Node_ptr, Distance>> &nnList, std::size_t nnSize) const;
   void rnn_(Node_ptr current, Distance dist_current, const recType &p, Distance distance, std::vector<std::pair<Node_ptr, Distance>> &nnList) const;
 
-  void print_(NodeType *node_p);
+  void print_(NodeType *node_p, std::ostream & ostr) const;
 
     Node_ptr merge(Node_ptr p, Node_ptr q);
     std::pair<Node_ptr,std::vector<Node_ptr>> mergeHelper(Node_ptr p, Node_ptr q);
     auto findAnyLeaf() -> Node_ptr;
     void extractNode(Node_ptr node);
+  // template<class Serializer>
+  // void serialize_node(Node_ptr node, std::ostringstream& ostr, Serializer& serializer);
+  
+  template<class Archive>
+  void serialize_aux(Node_ptr node, Archive & archvie);
+
 public:
+
+  template<class Archive>
+  auto deserialize_node(Archive & istr) -> SerializedNode<recType,Metric>;
+
+  template<class Archive, class Stream>
+  void deserialize(Archive & input, Stream & stream);
+
+  template<class Archive>
+  void  serialize(Archive & archive);
+
   /*** Constructors ***/
   Tree(int truncate = -1, Metric d = Metric());                                // empty tree
   Tree(const recType &p, int truncate = -1, Metric d = Metric());              // cover tree with one data record as root
@@ -120,7 +142,8 @@ public:
 
   /** Dev Tools **/
   int levelSize();                        // return the max_level of the tree (= root level)
-  void print();
+  void print() const;
+  void print(std::ostream & ostr) const;
   std::map<int, unsigned> print_levels(); // print and return level informations
 
   std::vector<recType> toVector(); // return all records in the tree in a std::vector
@@ -136,6 +159,14 @@ public:
     int get_root_level() {
         return root->level;
     }
+  bool same_tree(const Node_ptr lhs, const Node_ptr rhs) const ;
+  bool operator == (const Tree & t) const {
+    return same_tree(root,t.root);
+  }
+  friend std::ostream & operator << (std::ostream & ostr, const Tree & t) {
+    t.print(ostr);
+    return ostr;
+  }
 };
 
 } // end namespace

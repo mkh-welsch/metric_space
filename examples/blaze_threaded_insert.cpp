@@ -60,7 +60,7 @@ std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution
 std::vector<double> vec1 = assets::linspace(0.3, -0.3, rec_dim);
 auto comp_vec = assets::smoothDenoise(vec1, 0.1);
 auto nn = cTree.nn(comp_vec); // nearest neigbour
-    
+(void)nn;
 std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now(); // end searching
 auto insert_time = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 auto nn_time = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
