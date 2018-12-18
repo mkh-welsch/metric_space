@@ -148,6 +148,8 @@ public:
 
   std::vector<recType> toVector(); // return all records in the tree in a std::vector
 
+    std::string to_json();
+
   bool check_covering() const;
   void traverse_child(const std::function<void(Node_ptr)> &f);
     Node_ptr get_root() {

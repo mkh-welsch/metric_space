@@ -1261,4 +1261,71 @@ bool Tree<recType,Metric>::same_tree(const Node_ptr lhs, const Node_ptr rhs) con
   }
   return true;
 }
+    template<typename T>
+    std::string convert_to_string(const T &t) {
+        return std::to_string(t);
+    }
+
+#define DECLARE_CONVERT(type) \
+    template<> std::string convert_to_string<std::vector<type>>(const std::vector< type > &v) {\
+        std::ostringstream ostr;\
+        ostr << "[ ";\
+        for(std::size_t i = 0; i < v.size(); i++) {\
+            ostr << std::to_string(v[i]);\
+            if(i != v.size() - 1)  ostr << ",";\
+        }\
+        ostr << " ]";\
+        return ostr.str();\
+    }
+
+    DECLARE_CONVERT(int)
+    DECLARE_CONVERT(unsigned int)
+    DECLARE_CONVERT(int64_t)
+    DECLARE_CONVERT(uint64_t)
+    DECLARE_CONVERT(double)
+    DECLARE_CONVERT(float)
+    DECLARE_CONVERT(char)
+
+    template<typename recType, typename Metric>
+    inline std::string Tree<recType, Metric>::to_json()  {
+        struct node_t {
+            std::size_t ID;
+            recType value;
+        };
+        struct edge_t {
+            std::size_t source;
+            std::size_t target;
+            Distance distance;
+        };
+        std::vector<node_t> nodes;
+        std::vector<edge_t> edges;
+        traverse([&nodes, &edges](auto p) {
+                     nodes.emplace_back(node_t{p->ID, p->data});
+                     if(p->parent != nullptr) {
+                         edges.emplace_back(edge_t{p->parent->ID, p->ID, p->parent_dist });
+                     }
+                 });
+        std::ostringstream ostr;
+        ostr << "{" << std::endl;
+        ostr << "\"nodes\": [" << std::endl;
+        for(std::size_t i = 0; i < nodes.size(); i++) {
+            auto & n = nodes[i];
+            ostr << "{ \"id\":" << n.ID << ", \"values\":" << convert_to_string(n.value) << "}";
+            if(i != nodes.size() - 1)
+                ostr << ",";
+            ostr << std::endl;
+        }
+        ostr << "]," << std::endl;
+        ostr << "\"edges\": [" << std::endl;
+        for(std::size_t i = 0; i < edges.size(); i++) {
+            auto & n = edges[i];
+            ostr << "{ \"source\":" << n.source << ", \"target\":" << n.target << ", \"distance\":" << std::fixed << n.distance  << "}";
+            if(i != edges.size() - 1)
+                ostr << ",";
+            ostr << std::endl;
+        }
+        ostr << "]}" << std::endl;
+        return ostr.str();
+    }
+
 } // end namespace

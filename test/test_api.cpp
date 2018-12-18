@@ -105,3 +105,13 @@ BOOST_AUTO_TEST_CASE(test_insert2) {
   tree.print();
 }
 
+BOOST_AUTO_TEST_CASE(test_to_json) {
+    metric_search::Tree<int,distance<int>> tree;
+    tree.insert(1);
+    auto s = tree.to_json();
+    std::string json1 = "{\n\"nodes\": [\n{ \"id\":0, \"values\":1}\n],\n\"edges\": [\n]}\n";
+    BOOST_TEST(s == json1);
+    tree.insert(2);
+    std::string json2 = "{\n\"nodes\": [\n{ \"id\":0, \"values\":1},\n{ \"id\":1, \"values\":2}\n],\n\"edges\": [\n{ \"source\":0, \"target\":1, \"distance\":0}\n]}\n";
+    BOOST_TEST(tree.to_json() == json2);
+}
