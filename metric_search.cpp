@@ -461,6 +461,8 @@ namespace metric_search {
     bool Tree<recType, Metric>::insert(const std::vector<recType> &p) {
         for (const auto &rec : p) {
             insert(rec);
+            print();
+            std::cout << "-------------------" << std::endl;
         }
         return true;
     }
@@ -519,7 +521,7 @@ namespace metric_search {
             x->level = p->level + 1;
             x->parent = nullptr;
             x->children.push_back(p);
-            x->ID = N++;
+            //x->ID = N++;
             p->parent_dist = p->dist(x);
             p->parent = x;
             p = x;
@@ -985,20 +987,20 @@ namespace metric_search {
 
         auto pop = [&]() { depth[di -= 4] = 0; };
         //    recType pd;
-        // if(node_p->parent) {
-        //   //        auto  pd = node_p->parent->data;
-        //   //       std::cout << "(" << node_p->ID  << ',' << node_p->parent_dist <<
-        //   ',' << node_p->level<< ',' <<  node_p->data << "," << node_p->parent->ID
-        //   << ")" << std::endl; std::cout << "(" << node_p->level<< ',' <<
-        //   node_p->data << ")" << std::endl;
-        // } else {
-        //   std::cout << "(" <<   node_p->level<< ',' <<  node_p->data << ")" <<
-        //   std::endl;
-        //   //       std::cout << "(" << node_p->ID  << ',' << node_p->parent_dist <<
-        //   ',' << node_p->level << ',' <<  node_p->data << "," << " no_parent )" <<
-        //   std::endl;
-        // }
-        ostr << "(" << node_p->ID << ")" << std::endl;
+        if(node_p->parent) {
+          //        auto  pd = node_p->parent->data;
+            std::cout << "(" << node_p->ID  << ',' << node_p->parent_dist
+                      << ',' << node_p->level<< ',' <<  node_p->data << "," << node_p->parent->ID
+                      << ")" << std::endl;
+            //std::cout << "(" << node_p->level<< ',' << node_p->data << ")" << std::endl;
+        } else {
+          // std::cout << "(" <<   node_p->level<< ',' <<  node_p->data << ")" <<
+          // std::endl;
+          std::cout << "(" << node_p->ID  << ',' << node_p->parent_dist
+                    << ',' << node_p->level << ',' <<  node_p->data << "," << " no_parent )" <<
+          std::endl;
+        }
+//        ostr << "(" << node_p->ID << ")" << std::endl;
         if (node_p->children.empty())
             return;
 
@@ -1313,7 +1315,25 @@ namespace metric_search {
         }
         return radius;
     }
+    inline std::string print_vec(const std::vector<std::size_t> &v) {
+        std::ostringstream os;
+        os <<"[";
+        for(auto i : v) {
 
+            os << i << ",";
+        }
+        os << "]";
+        return os.str();
+    }
+    inline std::string print_vec_vec(const std::vector<std::vector<std::size_t>> & v) {
+        std::ostringstream os;
+        os << "{ ";
+        for(auto & i : v) {
+            os << print_vec(i) << ", ";
+        }
+        os << " }";
+        return os.str();
+    }
     template <typename recType, typename Metric>
     inline std::size_t Tree<recType, Metric>::grab_distribution(
         Node_ptr proot, const std::vector<double> &distribution,
@@ -1321,14 +1341,21 @@ namespace metric_search {
         const std::vector<std::size_t> &distribution_index,
         const std::vector<std::size_t> &IDS, const std::vector<recType> &points,
         std::size_t cur_distribution_idx,
-        std::vector<std::vector<std::size_t>> &result
+        std::vector<std::vector<std::size_t>> &result,
+        int & stack
         ) {
+        std::cout << "gb: stack=" << stack << ", idx=" << cur_distribution_idx << ", level=" << proot->level << ", data=" << proot->data << ", ID=" << proot->ID << ", res=" << print_vec(result[cur_distribution_idx])<< std::endl;
+        std::cout << print_vec_vec(result) << std::endl;
+        stack++;
+        int cur_stack = stack;
         if (proot->children.empty()) {
+            std::cout << "add node:" << proot->ID << std::endl;
             result[cur_distribution_idx].push_back(proot->ID);
             if (result[cur_distribution_idx].size() ==
                 distribution_sizes[cur_distribution_idx]) {
                 cur_distribution_idx++;
             }
+            std::cout << "grab exit3" << std::endl;
             return cur_distribution_idx;
         }
         auto idx__dists = sortChildrenByDistance(proot, points[IDS[0]]);
@@ -1336,15 +1363,19 @@ namespace metric_search {
         auto dists = std::get<1>(idx__dists);
         for (auto i : idx) {
             auto c = proot->children[i];
+            std::cout <<"pre rab1, " << cur_stack << ", i=" << i << std::endl;
             cur_distribution_idx = grab_distribution(
                 c, distribution, distribution_sizes, distribution_index, IDS, points,
-                cur_distribution_idx, result);
+                cur_distribution_idx, result, stack);
+            std::cout <<"out rab1, " << cur_stack << ", i=" << i <<  std::endl;
             if(cur_distribution_idx == distribution.size()) {
+                std::cout << "grab exit2" << std::endl;
                 return cur_distribution_idx;
             }
 
-            if(!c->children.empty()) {
+            if(!c->children.empty()) { //!
                 result[cur_distribution_idx].push_back(c->ID);
+                std::cout << "add node2:" << c->ID << std::endl;
             }
 
             if (result[cur_distribution_idx].size() ==
@@ -1352,15 +1383,77 @@ namespace metric_search {
                 cur_distribution_idx++;
             }
             if(cur_distribution_idx == distribution.size()) {
+                std::cout << "grab exit1" << std::endl;
                 return cur_distribution_idx;
             }
 
         }
+        std::cout << "grab exit" << std::endl;
+        return cur_distribution_idx;
+    }
+
+    bool check_distribution_fuill(const std::vector<std::vector<std::size_t>> &result,
+                                  std::size_t cur_distribution_idx,
+                                  const std::vector<std::size_t> &distribution_sizes) {
+        if(cur_distribution_idx == result.size())
+            return true;
+        if(cur_distribution_idx == (result.size() - 1) &&
+           result[cur_distribution_idx].size() == distribution_sizes[cur_distribution_idx])
+            return true;
+        return false;
+    }
+
+    template <typename recType, typename Metric>
+    inline std::size_t Tree<recType, Metric>::start_grab_distribution(
+        Node_ptr proot, const std::vector<double> &distribution,
+        const std::vector<std::size_t> &distribution_sizes,
+        const std::vector<std::size_t> &distribution_index,
+        const std::vector<std::size_t> &IDS, const std::vector<recType> &points,
+        std::size_t cur_distribution_idx,
+        std::vector<std::vector<std::size_t>> &result
+        ) {
+        std::cout << "enter start" << std::endl;
+        if(proot == nullptr)
+            return cur_distribution_idx;
+        std::vector<Node_ptr> childs = (proot->parent) ? proot->parent->children : std::vector<Node_ptr>{};
+        int stack = 0;
+        cur_distribution_idx = grab_distribution(proot, distribution, distribution_index, distribution_sizes,
+                                                 IDS, points, cur_distribution_idx, result, stack);
+        if(cur_distribution_idx != result.size() && result[cur_distribution_idx].size() != distribution_sizes[cur_distribution_idx]) {
+            std::cout << "add nod3: " << proot->ID << std::endl;
+            result[cur_distribution_idx].push_back(proot->ID);
+        }
+        auto id = proot->ID;
+        bool end = false;
+
+        for(auto & p : childs) {
+            int stack = 0;
+            if(p->ID != id)
+                cur_distribution_idx = grab_distribution(p, distribution, distribution_index, distribution_sizes,
+                                                         IDS, points, cur_distribution_idx, result, stack);
+            if(check_distribution_fuill(result, cur_distribution_idx, distribution_sizes)) {
+                end = true;
+                break;
+            }
+        }
+        if(!end) {
+            proot = proot->parent;
+            if(proot != nullptr) {
+                std::cout << "up to: " << proot->data << std::endl;
+                start_grab_distribution(proot, distribution, distribution_sizes,distribution_index, IDS, points, cur_distribution_idx, result);
+            } else {
+                std::cout << "at up" << std::endl;
+            }
+        }
+        // while(!check_distribution_fuill(distribution, cur_distribution_idx, distribution_sizes)) {
+            
+//            grab_distribution;
+            //change proot;
         return cur_distribution_idx;
     }
     template <typename recType, typename Metric>
     inline std::vector<std::vector<std::size_t>>
-    Tree<recType, Metric>::clastering(const std::vector<double> &distribution,
+    Tree<recType, Metric>::clustering(const std::vector<double> &distribution,
                                       const std::vector<std::size_t> &IDS,
                                       const std::vector<recType> &points) {
         std::vector<std::size_t> distribution_sizes;
@@ -1378,8 +1471,8 @@ namespace metric_search {
 
         double radius = find_neighbour_radius(IDS, points);
 
-        auto nn0 = nn(points[IDS[0]]);
-        Node_ptr proot = nn0;
+        auto proot = nn(points[IDS[0]]);
+//        Node_ptr proot = nn0;
         int level = proot->level;
         double level_radius = std::pow(base, level);
 
@@ -1395,8 +1488,8 @@ namespace metric_search {
         }
         if(cur_distrib_idx == distribution_sizes.size())
             return result;
-
-        grab_distribution(proot, distribution, distribution_index, distribution_sizes,
+        
+        start_grab_distribution(proot, distribution, distribution_index, distribution_sizes,
                           IDS, points, cur_distrib_idx, result);
         return result;
     }

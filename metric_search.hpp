@@ -95,6 +95,14 @@ namespace metric_search
                           const std::vector<std::size_t> &IDS,
                           const std::vector<recType> &points,
                           std::size_t cur_distribution_idx,
+                          std::vector<std::vector<std::size_t>> & result, int & stack);
+        std::size_t
+        start_grab_distribution(Node_ptr proot, const std::vector<double> &distribution,
+                          const std::vector<std::size_t> & distribution_sizes,
+                          const std::vector<std::size_t> & distribution_index,
+                          const std::vector<std::size_t> &IDS,
+                          const std::vector<recType> &points,
+                          std::size_t cur_distribution_idx,
                           std::vector<std::vector<std::size_t>> & result);
 
         double find_neighbour_radius(
@@ -124,7 +132,7 @@ namespace metric_search
         rset_t rebalance_(Node_ptr p, Node_ptr q,  Node_ptr x);
     public:
   
-        std::vector<std::vector<std::size_t>> clastering(const std::vector<double> &distribution,
+        std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<std::size_t> &IDS,
                                                          const std::vector<recType> &points);
 
