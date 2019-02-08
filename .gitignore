@@ -1,0 +1,14 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+n-api/node_modules/
+n-api/lib/binding/*
+n-api/lib/binding/*
+n-api/build/
+build/

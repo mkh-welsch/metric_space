@@ -1,4 +1,4 @@
-﻿/* Signal Empowering Technology                          
+﻿/* Signal Empowering Technology
    presents
 
    ███╗   ███╗███████╗████████╗██████╗ ██╗ ██████╗    ███████╗███████╗ █████╗ ██████╗  ██████╗██╗  ██╗
@@ -7,9 +7,9 @@
    ██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗██║██║         ╚════██║██╔══╝  ██╔══██║██╔══██╗██║     ██╔══██║
    ██║ ╚═╝ ██║███████╗   ██║   ██║  ██║██║╚██████╗    ███████║███████╗██║  ██║██║  ██║╚██████╗██║  ██║
    ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
-   Licensed under MPL 2.0. 
+   Licensed under MPL 2.0.
    Michael Welsch (c) 2018.
-                                                                                                   
+
    a library for metric search algorithms and data containers
 
    This Source Code Form is subject to the terms of the Mozilla Public
@@ -33,12 +33,13 @@
 #include <string>
 #include <functional>
 #include <tuple>
+#include <unordered_set>
 namespace metric_search
 {
 /*
   _ \         _|             |  |       \  |        |       _)      
   |  |  -_)   _| _` |  |  |  |   _|    |\/ |   -_)   _|   _| |   _| 
- ___/ \___| _| \__,_| \_,_| _| \__|   _|  _| \___| \__| _|  _| \__| 
+  ___/ \___| _| \__,_| \_,_| _| \__|   _|  _| \___| \__| _|  _| \__| 
                                                                     
 */
 /*** standard euclidian (L2) Metric ***/
@@ -52,8 +53,8 @@ namespace metric_search
     class Node;
 /*
   __ __|              
-  |   _| -_)   -_) 
-  _| _| \___| \___| 
+     |   _ | -_)   -_) 
+    _| _|  \___| \___| 
                      
 */
 /*** Cover Tree Implementation ***/
@@ -88,25 +89,20 @@ namespace metric_search
         std::tuple<std::vector<int>, std::vector<Distance>>
         sortChildrenByDistance(Node_ptr p, pointOrNodeType x) const;
 
-        std::size_t
-        grab_distribution(Node_ptr proot, const std::vector<double> &distribution,
-                          const std::vector<std::size_t> & distribution_sizes,
-                          const std::vector<std::size_t> & distribution_index,
-                          const std::vector<std::size_t> &IDS,
-                          const std::vector<recType> &points,
-                          std::size_t cur_distribution_idx,
-                          std::vector<std::vector<std::size_t>> & result, int & stack);
-        std::size_t
-        start_grab_distribution(Node_ptr proot, const std::vector<double> &distribution,
-                          const std::vector<std::size_t> & distribution_sizes,
-                          const std::vector<std::size_t> & distribution_index,
-                          const std::vector<std::size_t> &IDS,
-                          const std::vector<recType> &points,
-                          std::size_t cur_distribution_idx,
-                          std::vector<std::vector<std::size_t>> & result);
+        bool grab_sub_tree(Node_ptr proot, const recType & center, std::unordered_set<std::size_t> & parsed_points,
+                                                          const std::vector<std::size_t> &distribution_sizes,
+                                                          std::size_t & cur_idx,
+                                                          std::vector<std::vector<std::size_t>> & result);
+
+            bool grab_tree(Node_ptr start_point, const recType & center, std::unordered_set<std::size_t> & parsed_points,
+                       const std::vector<std::size_t> &distribution_sizes,
+                       std::size_t & cur_idx,
+                       std::vector<std::vector<std::size_t>> & result);
+
 
         double find_neighbour_radius(
             const std::vector<std::size_t> &IDS, const std::vector<recType> &points);
+        double find_neighbour_radius(const std::vector<recType> &points);
 
 
         //  template <typename pointOrNodeType>
@@ -122,18 +118,30 @@ namespace metric_search
         std::pair<Node_ptr,std::vector<Node_ptr>> mergeHelper(Node_ptr p, Node_ptr q);
         auto findAnyLeaf() -> Node_ptr;
         void extractNode(Node_ptr node);
-        // template<class Serializer>
-        // void serialize_node(Node_ptr node, std::ostringstream& ostr, Serializer& serializer);
-  
+    
         template<class Archive>
         void serialize_aux(Node_ptr node, Archive & archvie);
 
         Node_ptr rebalance(Node_ptr p, Node_ptr x);
         rset_t rebalance_(Node_ptr p, Node_ptr q,  Node_ptr x);
+
+        std::vector<std::vector<std::size_t>>
+        clustering_impl(const std::vector<double> &distribution,
+                        const recType &center, double radius);
+
+        bool update_idx(std::size_t &cur_idx,
+                        const std::vector<std::size_t> &distribution_sizes,
+                        std::vector<std::vector<std::size_t>> &result);
+
+        Distance metric(const recType & p1, const recType & p2) const { return metric_(p1,p2);}
+
     public:
   
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<std::size_t> &IDS,
+                                                         const std::vector<recType> &points);
+
+        std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<recType> &points);
 
         template<class Archive>
@@ -152,7 +160,7 @@ namespace metric_search
         ~Tree();                                                                     // Destuctor
 
         /*** Access Operations ***/
-  
+
         bool insert(const recType &p);              // insert data record into the cover tree
         Node_ptr insert(Node_ptr p, Node_ptr x);
         bool insert_if(const recType &p, Distance treshold);              // insert data record into the cover tree only if distance bigger than a treshold
@@ -160,7 +168,7 @@ namespace metric_search
         bool insert(const std::vector<recType> &p); // insert data record into the cover tree
         bool erase(const recType &p);               // erase data record into the cover tree
         recType operator[](size_t id);              // access a data record by ID
-  
+
         /*** Nearest Neighbour search ***/
         Node_ptr nn(const recType &p) const;                                                                   // nearest Neighbour
         std::vector<std::pair<Node_ptr, Distance>> knn(const recType &p, unsigned k = 10) const;               // k-Nearest Neighbours
@@ -178,8 +186,8 @@ namespace metric_search
 
         std::vector<recType> toVector(); // return all records in the tree in a std::vector
 
-	    std::string to_json();
-	
+        std::string to_json(std::function<std::string(const recType&)> printer);
+        std::string to_json();
         bool check_covering() const;
         void traverse_child(const std::function<void(Node_ptr)> &f);
         Node_ptr get_root() {
