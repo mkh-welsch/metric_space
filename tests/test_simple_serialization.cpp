@@ -4,7 +4,7 @@
 #include "3dparty/serialize/archive.h"
 #include <iostream>
 #include <vector>
-#include "metric_search.hpp"
+#include "metric_space.hpp"
 template<typename T>
 struct distance {
   int operator()( const T &lhs,  const T &rhs) const {
@@ -13,12 +13,12 @@ struct distance {
 };
 BOOST_AUTO_TEST_CASE(test_serialize_simple_fundamental) {
   std::vector<int> data = {3,5,-10,50,1,-200,200};
-  metric_search::Tree<int,distance<int>> tree;
+  metric_space::Tree<int,distance<int>> tree;
   tree.insert(data);
   std::ostringstream os;
   serialize::oarchive<std::ostringstream> oar(os);
   tree.serialize(oar);
-  metric_search::Tree<int,distance<int>> tree1;
+  metric_space::Tree<int,distance<int>> tree1;
   std::istringstream is(os.str());
   serialize::iarchive<std::istringstream> iar(is);
   tree1.deserialize(iar, is);
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(test_serialize_record) {
     {-200.0f,{1,6,3},6},
     {200.0f,{1,6,3},7}};
 
-  metric_search::Tree<Record,distance<Record>> tree;
+  metric_space::Tree<Record,distance<Record>> tree;
   tree.insert(data);
   std::ostringstream os;
   serialize::oarchive<std::ostringstream> oar(os);
   tree.serialize(oar);
-  metric_search::Tree<Record,distance<Record>> tree1;
+  metric_space::Tree<Record,distance<Record>> tree1;
   std::istringstream is(os.str());
   serialize::iarchive<std::istringstream> iar(is);
   tree1.deserialize(iar, is);

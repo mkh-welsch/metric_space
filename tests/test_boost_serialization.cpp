@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <vector>
-#include "metric_search.hpp"
+#include "metric_space.hpp"
 template<typename T>
 struct distance {
   int operator()( const T &lhs,  const T &rhs) const {
@@ -22,14 +22,14 @@ struct distance {
 };
 BOOST_AUTO_TEST_CASE(test_serialize_boost_text) {
   std::vector<int> data = {3,5,-10,50,1,-200,200};
-  metric_search::Tree<int,distance<int>> tree;
+  metric_space::Tree<int,distance<int>> tree;
   tree.insert(data);
   //  tree.print();
   std::ostringstream os;
   boost::archive::text_oarchive oar(os);
   tree.serialize(oar);
   //  std::cout << os.str() << std::endl;
-  metric_search::Tree<int,distance<int>> tree1;
+  metric_space::Tree<int,distance<int>> tree1;
   std::istringstream is(os.str());
   boost::archive::text_iarchive iar(is);
   tree1.deserialize(iar, is);
@@ -40,14 +40,14 @@ BOOST_AUTO_TEST_CASE(test_serialize_boost_text) {
 
 BOOST_AUTO_TEST_CASE(test_serialize_boost_xml) {
   std::vector<int> data = {3,5,-10,50,1,-200,200};
-  metric_search::Tree<int,distance<int>> tree;
+  metric_space::Tree<int,distance<int>> tree;
   tree.insert(data);
   //  tree.print();
   std::ostringstream os;
   boost::archive::xml_oarchive oar(os);
   tree.serialize(oar);
   //  std::cout << os.str() << std::endl;
-  metric_search::Tree<int,distance<int>> tree1;
+  metric_space::Tree<int,distance<int>> tree1;
   std::istringstream is(os.str());
   boost::archive::xml_iarchive iar(is);
   tree1.deserialize(iar, is);
@@ -58,14 +58,14 @@ BOOST_AUTO_TEST_CASE(test_serialize_boost_xml) {
 
 BOOST_AUTO_TEST_CASE(test_serialize_boost_binary) {
   std::vector<int> data = {3,5,-10,50,1,-200,200};
-  metric_search::Tree<int,distance<int>> tree;
+  metric_space::Tree<int,distance<int>> tree;
   tree.insert(data);
   //  tree.print();
   std::ostringstream os;
   boost::archive::binary_oarchive oar(os);
   tree.serialize(oar);
   //  std::cout << os.str() << std::endl;
-  metric_search::Tree<int,distance<int>> tree1;
+  metric_space::Tree<int,distance<int>> tree1;
   std::istringstream is(os.str());
   boost::archive::binary_iarchive iar(is);
   tree1.deserialize(iar, is);
@@ -101,13 +101,13 @@ BOOST_AUTO_TEST_CASE(test_serialize_boost_record_binary) {
     {-200.0f,{1,6,3},6},
     {200.0f,{1,6,3},7}};
 
-  metric_search::Tree<Record,distance<Record>> tree;
+  metric_space::Tree<Record,distance<Record>> tree;
   tree.insert(data);
   std::ostringstream os;
   boost::archive::binary_oarchive oar(os);
 
   tree.serialize(oar);
-  metric_search::Tree<Record,distance<Record>> tree1;
+  metric_space::Tree<Record,distance<Record>> tree1;
   std::istringstream is(os.str());
   boost::archive::binary_iarchive iar(is);
   tree1.deserialize(iar, is);
@@ -125,13 +125,13 @@ BOOST_AUTO_TEST_CASE(test_serialize_boost_record_text) {
     {-200.0f,{1,6,3},6},
     {200.0f,{1,6,3},7}};
 
-  metric_search::Tree<Record,distance<Record>> tree;
+  metric_space::Tree<Record,distance<Record>> tree;
   tree.insert(data);
   std::ostringstream os;
   boost::archive::text_oarchive oar(os);
 
   tree.serialize(oar);
-  metric_search::Tree<Record,distance<Record>> tree1;
+  metric_space::Tree<Record,distance<Record>> tree1;
   std::istringstream is(os.str());
   boost::archive::text_iarchive iar(is);
   tree1.deserialize(iar, is);
@@ -149,14 +149,14 @@ BOOST_AUTO_TEST_CASE(test_serialize_boost_record_xml) {
     {-200.0f,{1,6,3},6},
     {200.0f,{1,6,3},7}};
 
-  metric_search::Tree<Record,distance<Record>> tree;
+  metric_space::Tree<Record,distance<Record>> tree;
   tree.insert(data);
   std::ostringstream os;
   boost::archive::xml_oarchive oar(os);
 
   tree.serialize(oar);
   std::cout << os.str() << std::endl;
-  metric_search::Tree<Record,distance<Record>> tree1;
+  metric_space::Tree<Record,distance<Record>> tree1;
   std::istringstream is(os.str());
   boost::archive::xml_iarchive iar(is);
   tree1.deserialize(iar, is);

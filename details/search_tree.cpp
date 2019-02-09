@@ -3,7 +3,7 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
 /* Michael Welsch (c) 2018 */
 
-#include "metric_search.hpp" // back reference for header only use
+#include "search_tree.hpp" // back reference for header only use
 #include <functional>
 #include <algorithm>
 #include <sstream>
@@ -23,7 +23,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
 #endif
 #endif
 
-namespace metric_search
+namespace metric_space
 {
 
 /*

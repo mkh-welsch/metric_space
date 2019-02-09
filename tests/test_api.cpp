@@ -14,7 +14,7 @@
 //#include "3dparty/serialize/archive.h"
 #include <iostream>
 #include <vector>
-#include "metric_search.hpp"
+#include "metric_space.hpp"
 template<typename T>
 struct distance {
     int operator()( const T &lhs,  const T &rhs) const {
@@ -24,7 +24,7 @@ struct distance {
 
 BOOST_AUTO_TEST_CASE(test_insert) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     for(auto t : data) {
         tree.insert(t);
         BOOST_TEST(tree.check_covering());
@@ -33,13 +33,13 @@ BOOST_AUTO_TEST_CASE(test_insert) {
 
 BOOST_AUTO_TEST_CASE(test_insert_batch) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(data);
     BOOST_TEST(tree.check_covering());
 }
 BOOST_AUTO_TEST_CASE(test_nn) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(data);
     tree.print();
     BOOST_TEST(tree.nn(200)->data == 200);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test_nn) {
 
 BOOST_AUTO_TEST_CASE(test_knn) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(data);
     auto k1 = tree.knn(3,15);
     BOOST_TEST(k1.size() == 7);
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_knn) {
 
 BOOST_AUTO_TEST_CASE(test_erase) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(data);
     //    tree.print();
     for(auto d : data) {
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(test_erase) {
 
 BOOST_AUTO_TEST_CASE(test_erase_root) {
     std::vector<int> data = {3,5,-10,50,1,-200,200};
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(data);
     //    tree.print();
     for(int i = 0; i < 7; i++) {
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_erase_root) {
 }
 
 BOOST_AUTO_TEST_CASE(test_insert_if) {
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(1);
     BOOST_TEST(!tree.insert_if(2,10));
     BOOST_TEST(tree.insert_if(15,10));
@@ -100,13 +100,13 @@ BOOST_AUTO_TEST_CASE(test_insert_if) {
 
 BOOST_AUTO_TEST_CASE(test_insert2) {
   std::vector<int> data = {7,8,9,10,11,12,13};
-  metric_search::Tree<int,distance<int>> tree;
+  metric_space::Tree<int,distance<int>> tree;
   tree.insert(data);
   tree.print();
 }
 
 BOOST_AUTO_TEST_CASE(test_to_json) {
-    metric_search::Tree<int,distance<int>> tree;
+    metric_space::Tree<int,distance<int>> tree;
     tree.insert(1);
     auto s = tree.to_json();
     std::string json1 = "{\n\"nodes\": [\n{ \"id\":0, \"values\":1}\n],\n\"edges\": [\n]}\n";

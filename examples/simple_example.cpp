@@ -1,6 +1,6 @@
 #include <vector>
 #include <iostream>
-#include "../metric_search.hpp"
+#include "../metric_space.hpp"
 
 int main()
 {
@@ -15,7 +15,7 @@ int main()
     std::vector<double> v7 = {3, 7, 2, 1, 0, 0, 0, 0};
 
     /*** initialize the tree ***/
-    metric_search::Tree<std::vector<double>> cTree;
+    metric_space::Tree<std::vector<double>> cTree;
 
     /*** add data records ***/
     cTree.insert(v0);
@@ -46,7 +46,7 @@ int main()
         {5, 3, 2, 1, 0, 0, 0, 0},
         {4, 6, 2, 2, 1, 1, 0, 0},};
 
-    metric_search::Tree<std::vector<double>> cTree2(table);
+    metric_space::Tree<std::vector<double>> cTree2(table);
 
     std::vector<std::vector<double>> table2 = {
         {3, 7, 2, 1, 0, 0, 0, 0},

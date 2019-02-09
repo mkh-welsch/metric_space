@@ -4,7 +4,7 @@
 # include <thread>
 # include <blaze/Math.h>
 # include "../assets/assets.cpp"
-# include "../metric_search.hpp"
+# include "../metric_space.hpp"
 
 /*** define custom metric ***/
 template <typename T>
@@ -18,7 +18,7 @@ struct recMetric_Blaze
 
 /*** simulation helper functions ***/
 template <class recType, class Metric>
-void insert_random(metric_search::Tree<recType, Metric> &cTree,int samples, int dimension)
+void insert_random(metric_space::Tree<recType, Metric> &cTree,int samples, int dimension)
 {
     // random generator
     std::random_device rnd_device;
@@ -39,7 +39,7 @@ void insert_random(metric_search::Tree<recType, Metric> &cTree,int samples, int 
 /*** fill a tree with 1 Mio records and search for nearest neighbour **/
 int main(){
 
-metric_search::Tree<blaze::CompressedVector<double>, recMetric_Blaze<double>> cTree;
+metric_space::Tree<blaze::CompressedVector<double>, recMetric_Blaze<double>> cTree;
     
 int n_records = 25000;
 int rec_dim = 100;

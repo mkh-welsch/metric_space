@@ -2,7 +2,7 @@
 #include <functional>
 #include <algorithm>
 #include <iomanip>
-#include "metric_search.hpp"
+#include "../metric_space.hpp"
 template<typename T>
 struct distance {
     int operator()( const T &lhs,  const T &rhs) const {
@@ -13,7 +13,7 @@ int main() {
 //    std::vector<int> data = {3,5,-10,50,1,-200,200};
 //    std::vector<float> data = {-10,50,1,-200,200,250};
 //    std::vector<float> data = {-10,50,1,-200,200,250,-300, 1000, -2000, std::numeric_limits<float>::max()};
-    metric_search::Tree<long double,distance<long double>> tr;
+    metric_space::Tree<long double,distance<long double>> tr;
     tr.insert(0);
 
     for(int i =0; i < 100; i++)  {

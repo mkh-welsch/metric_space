@@ -1,4 +1,4 @@
-# metric_search
+# metric_space
 A templated, header only and hopefully in future (not yet) thread safe C++14 implementation of a Metric Search Tree. A Search Tree works like a std-container to store data of some structure. Basically a Metric Search Tree has the same principle as a binary search tree or a kd-tree, but it works for arbitrary (!) data structures. This Metric Search Tree is basically a Cover Tree Implementation. Additionally to the distiance (or similarity) between the data, a covering distance from level to level decides how the tree grows.
 
 It can be used to find similar sets of data in millions of data sets, each containing hundreds of single values in only a few milliseconds.
@@ -8,7 +8,7 @@ build the tree, search for a data record and invastigate the tree structure.
 ```c++
 # include <vector>
 # include <iostream>
-# include "metric_search.hpp"
+# include "metric_space.hpp"
 
 int main()
 {
@@ -23,7 +23,7 @@ std::vector<double> v6 = {4, 6, 2, 2, 1, 1, 0, 0};
 std::vector<double> v7 = {3, 7, 2, 1, 0, 0, 0, 0};
 
 /*** initialize the tree ***/
-metric_search::Tree<std::vector<double>> cTree;
+metric_space::Tree<std::vector<double>> cTree;
 
 /*** add data records ***/
 cTree.insert(v0);
@@ -69,12 +69,12 @@ typedef std::vector<double> recType;
 typedef std::vector<recType> recList
 
 /*** Tree with default L2 metric (Euclidian distance measure) ***/ 
-metric_search::Tree<recType> cTree; //empty tree
-metric_search::Tree<recType> cTree(recType v1); // with one data record
-metric_search::Tree<recType> cTree(recList m1); // a container with records.
+metric_space::Tree<recType> cTree; //empty tree
+metric_space::Tree<recType> cTree(recType v1); // with one data record
+metric_space::Tree<recType> cTree(recList m1); // a container with records.
 
 /** A Tree with a custom metric. ***/
-metric_search::Tree<recType,customMetric> cTree; 
+metric_space::Tree<recType,customMetric> cTree; 
 // ...
 ```
 
@@ -121,7 +121,7 @@ use an "Eigen" Vector and L1 metric.
 
 ```c++
 # include <eigen3/Eigen/Core>
-# include "metric_search.hpp"
+# include "metric_space.hpp"
 
 using recType = Eigen::VectorXd;
 
@@ -135,7 +135,7 @@ struct recMetric
 };
 
 int main(){
-metric_search::Tree<recType,recMetric> cTree;
+metric_space::Tree<recType,recMetric> cTree;
 // the rest is the same like in the simple example
 
 return 0;
@@ -152,7 +152,7 @@ Use a time elastic distance metric (a sparsed TWED variant -> see rts reporsitor
 # include <thread>
 # include <blaze/Math.h>
 # include "assets/assets.cpp"
-# include "metric_search.hpp"
+# include "metric_space.hpp"
 
 /*** define custom metric ***/
 template <typename T>
@@ -166,7 +166,7 @@ struct recMetric_Blaze
 
 /*** simulation helper functions ***/
 template <class recType, class Metric>
-void insert_random(metric_search::Tree<recType, Metric> &cTree,int samples, int dimension)
+void insert_random(metric_space::Tree<recType, Metric> &cTree,int samples, int dimension)
 {
     // random generator
     std::random_device rnd_device;
@@ -187,7 +187,7 @@ void insert_random(metric_search::Tree<recType, Metric> &cTree,int samples, int 
 /*** fill a tree with 1 Mio records and search for nearest neighbour **/
 int main(){
 
-metric_search::Tree<blaze::CompressedVector<double>, recMetric_Blaze<double>> cTree;
+metric_space::Tree<blaze::CompressedVector<double>, recMetric_Blaze<double>> cTree;
     
 int rec_count = 250000;
 int rec_dim = 100;
@@ -230,7 +230,7 @@ that means in comparsion to a binary search tree an additionally "covering" dist
 
 Benefits in comparsion to a brute force search over all data
 ```
-            std::vector<data_record>  metric_search::tree<data_record>
+            std::vector<data_record>  metric_space::tree<data_record>
 add record:      0                       log(n)
 find nn record:  n                       log(n)
 ```
