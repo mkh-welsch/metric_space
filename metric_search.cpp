@@ -1305,19 +1305,6 @@ namespace metric_search {
         }
     }
 
-    template <typename recType, typename Metric>
-    inline double Tree<recType, Metric>::find_neighbour_radius(
-        const std::vector<std::size_t> &IDS, const std::vector<recType> &points) {
-        double radius = std::numeric_limits<double>::min();
-        auto &p1 = points[IDS[0]];
-        //Metric m;
-        for (auto & i : IDS) {
-            double distance = metric(p1, points[i]);
-            if (distance > radius)
-                radius = distance;
-        }
-        return radius;
-    }
 
     template <typename recType, typename Metric>
     inline double Tree<recType, Metric>::find_neighbour_radius(
@@ -1327,6 +1314,33 @@ namespace metric_search {
 //        Metric m;
         for (std::size_t i = 1; i < points.size(); i++) {
             double distance = metric(p1, points[i]);
+            if (distance > radius)
+                radius = distance;
+        }
+        return radius;
+    }
+    template <typename recType, typename Metric>
+    inline double Tree<recType, Metric>::find_neighbour_radius(
+        const std::vector<std::size_t> &IDS,
+        const std::vector<recType> &points) {
+        double radius = std::numeric_limits<double>::min();
+        auto &p1 = points[IDS[0]];
+//        Metric m;
+        for (std::size_t i = 1; i < IDS.size(); i++) {
+            double distance = metric(p1, points[IDS[i]]);
+            if (distance > radius)
+                radius = distance;
+        }
+        return radius;
+    }
+
+    template <typename recType, typename Metric>
+    inline double Tree<recType, Metric>::find_neighbour_radius(
+        const std::vector<std::size_t> &IDS) {
+        double radius = std::numeric_limits<double>::min();
+        auto &p1 = (*this)[IDS[0]];
+        for (std::size_t i = 1; i < IDS.size(); i++) {
+            double distance = metric(p1, (*this)[IDS[i]]);
             if (distance > radius)
                 radius = distance;
         }
@@ -1433,11 +1447,25 @@ namespace metric_search {
         return false;
     }
 
+    inline void is_distribution_ok(const std::vector<double> & distribution) {
+        if(distribution.empty())
+            return;
+        double d0 = distribution[0];
+        for(std::size_t i = 1; i < distribution.size(); i++) {
+            if(distribution[i] < d0)
+                throw unsorted_distribution_exception{};
+            if(distribution[i] < 0.0 || distribution[i] > 1.0)
+                throw bad_distribution_exception{};
+            d0 = distribution[i];
+        }
+        return;
+    }
     template <typename recType, typename Metric>
     inline std::vector<std::vector<std::size_t>>
     Tree<recType, Metric>::clustering(const std::vector<double> &distribution,
                                       const std::vector<std::size_t> &IDS,
                                       const std::vector<recType> &points) {
+        is_distribution_ok(distribution);
         double radius = find_neighbour_radius(IDS, points);
         return clustering_impl(distribution, points[IDS[0]], radius);
     }
@@ -1445,7 +1473,18 @@ namespace metric_search {
     template <typename recType, typename Metric>
     inline std::vector<std::vector<std::size_t>>
     Tree<recType, Metric>::clustering(const std::vector<double> &distribution,
+                                      const std::vector<std::size_t> &IDS) {
+        is_distribution_ok(distribution);
+        double radius = find_neighbour_radius(IDS);
+        Node_ptr center = this->get(IDS[0]);
+        return clustering_impl(distribution, center, radius);
+    }
+
+    template <typename recType, typename Metric>
+    inline std::vector<std::vector<std::size_t>>
+    Tree<recType, Metric>::clustering(const std::vector<double> &distribution,
                                       const std::vector<recType> &points) {
+        is_distribution_ok(distribution);
         double radius = find_neighbour_radius(points);
         return clustering_impl(distribution, points[0], radius);
     }
@@ -1454,19 +1493,18 @@ namespace metric_search {
     inline std::vector<std::vector<std::size_t>>
     Tree<recType, Metric>::clustering_impl(const std::vector<double> &distribution,
                                            const recType &center, double radius) {
-        std::cout << "radius=" << radius << std::endl;
         std::vector<std::size_t> distribution_sizes;
         distribution_sizes.reserve(distribution.size());
-        std::vector<std::size_t> distribution_index(distribution.size());
-        std::iota(distribution_index.begin(), distribution_index.end(), 0);
+        // std::vector<std::size_t> distribution_index(distribution.size());
+        // std::iota(distribution_index.begin(), distribution_index.end(), 0);
         auto tree_size = size();
         for (auto d : distribution) {
             distribution_sizes.push_back(static_cast<double>(tree_size) * d);
         }
-        std::sort(distribution_index.begin(), distribution_index.end(),
-                  [&distribution_sizes](auto lhs, auto rhs) {
-                      return distribution_sizes[lhs] < distribution_sizes[rhs];
-                  });
+        // std::sort(distribution_index.begin(), distribution_index.end(),
+        //           [&distribution_sizes](auto lhs, auto rhs) {
+        //               return distribution_sizes[lhs] < distribution_sizes[rhs];
+        //           });
 
         std::size_t ls = distribution_sizes[0];
         for (std::size_t i = 1; i < distribution_sizes.size(); i++) {

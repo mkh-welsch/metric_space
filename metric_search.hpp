@@ -51,6 +51,10 @@ namespace metric_search
 
     template<typename, typename>
     class Node;
+
+    struct unsorted_distribution_exception : public std::exception {};
+    struct bad_distribution_exception : public std::exception {};
+
 /*
   __ __|              
      |   _ | -_)   -_) 
@@ -102,6 +106,8 @@ namespace metric_search
 
         double find_neighbour_radius(
             const std::vector<std::size_t> &IDS, const std::vector<recType> &points);
+        double find_neighbour_radius(const std::vector<std::size_t> &IDS);
+
         double find_neighbour_radius(const std::vector<recType> &points);
 
 
@@ -140,6 +146,9 @@ namespace metric_search
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<std::size_t> &IDS,
                                                          const std::vector<recType> &points);
+
+        std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
+                                                         const std::vector<std::size_t> &IDS);
 
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<recType> &points);

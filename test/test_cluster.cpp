@@ -92,3 +92,21 @@ BOOST_AUTO_TEST_CASE(cluster3) {
     //     i++;
     // }
 }
+
+BOOST_AUTO_TEST_CASE(cluster_exception_unsorted) {
+    std::vector<int> data = {7,8,9,10,11,12,13};
+    metric_search::Tree<int,distance<int>> tree;
+    tree.insert(data);
+    std::vector<double> distribution1 = {0.9, 0.1, 0.2, 0.5, 0.9};
+    std::vector<double> distribution2 = {0.1, 0.2, 0.5, 0.9};
+    std::vector<double> distribution3 = {0.1, 0.2, 0.5, 0.9, 1,5};
+    std::vector<std::size_t>  IDS = {3};
+    std::vector<int>  points = {10};
+    BOOST_CHECK_THROW(tree.clustering(distribution1, IDS, data), metric_search::unsorted_distribution_exception);
+    BOOST_CHECK_THROW(tree.clustering(distribution1, points), metric_search::unsorted_distribution_exception);
+    BOOST_CHECK_THROW(tree.clustering(distribution3, IDS, data), metric_search::bad_distribution_exception);
+    BOOST_CHECK_THROW(tree.clustering(distribution3, points), metric_search::bad_distribution_exception);
+    BOOST_REQUIRE_NO_THROW(tree.clustering(distribution2, IDS, data));
+    BOOST_REQUIRE_NO_THROW(tree.clustering(distribution2, points));
+    
+}
