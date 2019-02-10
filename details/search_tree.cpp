@@ -4,7 +4,6 @@
 /* Michael Welsch (c) 2018 */
 
 #include "search_tree.hpp" // back reference for header only use
-#include <functional>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -27,377 +26,7 @@
 #endif
 #endif
 
-namespace metric_space
-{
-
-/*
-  __ \          _|                |  |         \  |        |         _)           
-  |   |   _ \  |     _` |  |   |  |  __|      |\/ |   _ \  __|   __|  |   __|     
-  |   |   __/  __|  (   |  |   |  |  |        |   |   __/  |    |     |  (        
- ____/  \___| _|   \__,_| \__,_| _| \__|     _|  _| \___| \__| _|    _| \___|     
-                                                                                                                                                    
-*/
-template <typename Container>
-struct L2_Metric_STL
-{
-    typedef typename Container::value_type result_type;
-    static_assert(
-        std::is_floating_point<result_type>::value, "T must be a float type");
-
-    result_type operator()(const Container &a, const Container &b) const
-    {
-        result_type sum = 0;
-        for (auto it1 = a.begin(), it2 = b.begin(); it1 != a.end() || it2 != b.end(); ++it1, ++it2)
-        {
-            sum += (*it1 - *it2) * (*it1 - *it2);
-        }
-        return std::sqrt(sum);
-    }
-};
-
-/*
-   \  |             |                   
-    \ |   _ \    _` |   _ \             
-  |\  |  (   |  (   |   __/             
- _| \_| \___/  \__,_| \___|             
-                                                          
-nodes of the tree                          
-*/
-template <class recType, class Metric>
-class Node
-{
-  public:
-  using Distance = typename Tree<recType,Metric>::Distance;
-
-    friend Tree<recType, Metric>;
-    Node(Distance base = Tree<recType, Metric>().base) : base(base) { }
-    ~Node() {
-        for(auto p : children) {
-            delete p;
-        }
-    }
-  //    typedef Tree<recType, Metric>::Node NodeType;
-    //typedef std::shared_ptr<Tree<recType, Metric>::Node> Node_ptr;
-  typedef Node<recType,Metric>* Node_ptr;
-    //  typedef typename std::result_of<Metric(recType, recType)>::type Distance;
-
-  Distance base;
-  recType data;    // data record associated with the node
-  Node_ptr parent = nullptr; // parent of current node
-  std::vector<Node_ptr> children; // list of children
-  int level = 0;                      // current level of the node
-  Distance parent_dist = 0;           // upper bound of distance to any of descendants
-  unsigned ID = 0;                    // unique ID of current node
-
-    //    mutable std::shared_timed_mutex mut; // lock for current node
-
-    Distance covdist(); // covering distance of subtree at current node
-    Distance sepdist(); // separating distance between nodes at current level
-
-    Distance dist(const recType &pp) const; // distance between this node and point pp
-    Distance dist(Node_ptr n) const;        // distance between this node and node n
-
-    Node_ptr setChild(const recType &p, int new_id = -1); // insert a new child of current node with point p
-    Node_ptr setChild(Node_ptr p, int new_id = -1);       // // insert the subtree p as child of current node (erase or reordering)
-
-    // setting iterators for children access in loops
-    typename std::vector<Node_ptr>::const_iterator begin() const
-    {
-        return children.cbegin();
-    }
-    typename std::vector<Node_ptr>::const_iterator end() const
-    {
-        return children.cend();
-    }
-    typename std::vector<Node_ptr>::iterator begin()
-    {
-        return children.begin();
-    }
-    typename std::vector<Node_ptr>::iterator end()
-    {
-        return children.end();
-    }
-
-  template<typename Archive>
-  void serialize(Archive & ar, const unsigned int) {
-    ar & SERIALIZATION_NVP(base)
-        & SERIALIZATION_NVP(level)
-        & SERIALIZATION_NVP(parent_dist)
-        & SERIALIZATION_NVP(ID)
-        & SERIALIZATION_NVP(data);
-  }
-};
-
-template<typename recType, typename Metric>
-struct SerializedNode {
-  using NodeType = Node<recType, Metric>;
-  NodeType * node = nullptr;
-  bool is_null = true;
-  bool has_children = false;
-
-  SerializedNode():node(nullptr), is_null(true), has_children(false) { }
-  ~SerializedNode() {  }
-  SerializedNode(NodeType* n):node(n),is_null((node == nullptr)? true : false), has_children(!is_null && node->children.empty() ? false : true) {}
-
-  template<typename Archive>
-  void save(Archive & ar, const unsigned int ) const {
-    ar << SERIALIZATION_NVP(is_null);
-    if(!is_null) {
-      // ar << *node << has_children;
-      ar  << SERIALIZATION_NVP2("node",*node)
-          << SERIALIZATION_NVP(has_children);
-    }
-  }
-  template<typename Archive>
-  void load(Archive & ar, const unsigned int ) {
-    ar >> SERIALIZATION_NVP(is_null);
-    if(!is_null) {
-      try {
-        node = new NodeType();
-        ar >> SERIALIZATION_NVP2("node",*node);
-
-        ar >> SERIALIZATION_NVP(has_children);
-      } catch(...) {
-        delete node;
-        node = nullptr;
-        throw;
-      }
-    }
-  }
-  SERIALIZE_SPLIT_MEMBERS();
-  //BOOST_SERIALIZATION_SPLIT_MEMBER()
-  
-};
-/*
-   \  |             |           _ _|                    |                                |           |   _)                   
-    \ |   _ \    _` |   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \  __ \   __|   _` |  __|  |   _ \   __ \      
-  |\  |  (   |  (   |   __/       |   |   |   |  |   |  |   __/  |   |   |   __/  |   |  |    (   |  |    |  (   |  |   |     
- _| \_| \___/  \__,_| \___|     ___| _|  _|  _|  .__/  _| \___| _|  _|  _| \___| _|  _| \__| \__,_| \__| _| \___/  _|  _|     
-                                                _|                                                                                                                                                                                                                                                       
-*/
-
-/*** covering distance of subtree at current node ***/
-template <class recType, class Metric>
-typename Node<recType, Metric>::Distance
-Node<recType, Metric>::covdist()
-{
-    return std::pow(base, level);
-}
-
-/*** separating distance between nodes at current level ***/
-template <class recType, class Metric>
-typename Node<recType, Metric>::Distance
-Node<recType, Metric>::sepdist()
-{
-    return 2 * std::pow(base, level - 1);
-}
-
-/*** distance between current node and point pp ***/
-template <class recType, class Metric>
-typename Node<recType, Metric>::Distance
-Node<recType, Metric>::dist(const recType &pp) const
-{
-    return Metric()(data, pp);
-}
-
-/*** distance between current node and node n ***/
-template <class recType, class Metric>
-typename Node<recType, Metric>::Distance
-Node<recType, Metric>::dist(Node_ptr n) const
-{
-    return Metric()(data, n->data);
-}
-
-/*** insert a new child of current node with point p ***/
-template <class recType, class Metric>
-Node<recType, Metric>*
-Node<recType, Metric>::setChild(const recType &p, int new_id)
-{
-  Node_ptr temp(new Node<recType, Metric>());
-    temp->data = p;
-    temp->level = level - 1;
-    temp->parent_dist = 0;
-    temp->ID = new_id;
-    temp->parent = this;
-    children.push_back(temp);
-    return temp;
-}
-
-/*** insert the subtree p as child of current node ***/
-template <class recType, class Metric>
-Node<recType, Metric>*
-Node<recType, Metric>::setChild(Node_ptr p, int /*new_id*/)
-{
-    if (p->level != level - 1)
-    {
-        Node_ptr current = p;
-        std::stack<Node_ptr> travel;
-        current->level = level - 1;
-        travel.push(current);
-
-        while (travel.size() > 0)
-        {
-            current = travel.top();
-            travel.pop();
-
-            for (const auto &child : *current)
-            {
-                child->level = current->level - 1;
-                travel.push(child);
-            }
-        }
-    }
-
-    p->parent  = this;
-    children.push_back(p);
-    return p;
-}
-
-/*
- __ __|                    _ _|                    |                                |           |   _)               
-    |   __|  _ \   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \  __ \   __|   _` |  __|  |   _ \   __ \  
-    |  |     __/   __/       |   |   |   |  |   |  |   __/  |   |   |   __/  |   |  |    (   |  |    |  (   |  |   | 
-   _| _|   \___| \___|     ___| _|  _|  _|  .__/  _| \___| _|  _|  _| \___| _|  _| \__| \__,_| \__| _| \___/  _|  _| 
-                                           _|                                                                        
-*/
-
-/*
-   __|                   |                   |                  
-  (      _ \    \  (_-<   _|   _| |  |   _|   _|   _ \   _|     
- \___| \___/ _| _| ___/ \__| _|  \_,_| \__| \__| \___/ _|       
-                                                                                                                                                                                                           
-*/
-
-/*** constructor: empty tree **/
-template <class recType, class Metric>
-Tree<recType, Metric>::Tree(int truncate /*=-1*/, Metric d)
-    : metric_(d)
-{
-    root = NULL;
-    min_scale = 1000;
-    max_scale = 0;
-    truncate_level = truncate;
-    N = 0;
-}
-
-/*** constructor: with a signal data record **/
-template <class recType, class Metric>
-Tree<recType, Metric>::Tree(const recType &p, int truncateArg /*=-1*/, Metric d)
-    : metric_(d)
-{
-    min_scale = 1000;
-    max_scale = 0;
-    truncate_level = truncateArg;
-    N = 1;
-
-    root = std::make_unique<NodeType>();
-    root->data = p;
-    root->level = 0;
-    root->parent_dist = 0;
-    root->ID = 0;
-}
-
-/*** constructor: with a vector data records **/
-template <class recType, class Metric>
-Tree<recType, Metric>::Tree(const std::vector<recType> &p, int truncateArg /*=-1*/, Metric d)
-    : metric_(d)
-{
-    min_scale = 1000;
-    max_scale = 0;
-    truncate_level = truncateArg;
-    N = 1;
-
-    root = new NodeType; //std::make_unique<NodeType>();
-    root->data = p[0];
-    root->level = 0;
-    root->parent_dist = 0;
-    root->ID = 0;
-
-    for (std::size_t i = 1; i < p.size(); ++i)
-    {
-        insert(p[i]);
-    }
-}
-
-/*** default deconstructor **/
-template <class recType, class Metric>
-Tree<recType, Metric>::~Tree() {
-    delete root;
-}
-
-// template <class recType, class Metric>
-// auto Tree<recType, Metric>::merge(Node_ptr p, Node_ptr q)  -> Node_ptr {
-//     Node_ptr p1 = p;
-//     Node_ptr q1 = q;
-//     if(q->level > p->level) {
-//         p1 = q;
-//         q1 = p;
-//     }
-//     while(q1->level < p1->level) {
-//         Node_ptr leaf = findAnyLeaf(q1);
-//         extractNode(leaf);
-//         leaf->children.push_back(root);
-//         leaf->level = root->level + 1;
-//         root->parent = leaf;
-//         root = leaf;
-//     }
-//     std::pair<Node_ptr,std::vector<Node_ptr>> lf = mergeHelper(p1,q1);
-//     for(auto r : lf.second ) {
-//         insert(p1,r);
-//     }
-//     return p1;
-// }
-
-// template <class recType, class Metric>
-// auto Tree<recType, Metric>::mergeHelper(Node_ptr p, Node_ptr q) ->
-// std::pair<Node_ptr,std::vector<Node_ptr>> {
-//     std::vector<Node_ptr> children1;
-//     std::vector<Node_ptr> sepcov;
-//     std::vector<Node_ptr> leftovers;
-//     std::vector<Node_ptr> uncovered;
-//     std::copy(p->children.begin(),p->children.end(),
-//     std::back_inserter(children1)); for(auto r : q->children) {
-//         if(p->dist(r) < p->covdist()) {
-//             bool foundMatch = false;
-//             for(auto s : children1) {
-//                 if(s->dist(r) <= p->sepdist()) {
-//                     std::pair<Node_ptr,std::vector<Node_ptr>> lf =
-//                     mergeHelper(s,r); children1.push_back(lf.first); for(auto
-//                     t = children1.begin(); t != children1.end(); ++t) {
-//                         if(*t == s) {
-//                             children1.erase(t);
-//                             break;
-//                         }
-//                     }
-//                     leftovers.isert(leftovers.end(),lf.second.begin(),lf.second.end());
-//                     foundMatch = true;
-//                     break;
-//                 }
-//             }
-//             if(!foundMatch) {
-//                 sepcov.push_back(r);
-//             }
-//         } else {
-//                 uncovered.push_back(r);
-//         }
-//     }
-//     children1.insert(children1.end(),sepcov.begin(),sepcov.end());
-//     p->children.assign(children1);
-//     for(auto t : p->children) {
-//         t->parent = p;
-//     }
-//     insert_(p,q);
-//     std::vector<Node_ptr> leftovers1;
-//     for(auto r : leftovers) {
-//         if(r->dist(p) < p->covdist) {
-//             insert_(p,r);
-//         } else {
-//             leftovers1.push_back(r);
-//         }
-//     }
-//     leftovers1.insert(leftovers1.end(),uncovered.begin(),uncovered.end());
-//     return std::make_pair(p,leftovers1);
-// }
+namespace metric_space {
 
 /*
   __ \          _|                |  |         \  |        |         _)
@@ -557,15 +186,11 @@ Tree<recType, Metric>::~Tree() {
         // BOOST_SERIALIZATION_SPLIT_MEMBER()
     };
 /*
-  \  |             |           _ _|                    | |           |   _)
-   \ |   _ \    _` |   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \
-  __ \   __|   _` |  __|  |   _ \   __ \
-  |\  |  (   |  (   |   __/       |   |   |   |  |   |  |   __/  |   |   |   __/
-  |   |  |    (   |  |    |  (   |  |   |
-  _| \_| \___/  \__,_| \___|     ___| _|  _|  _|  .__/  _| \___| _|  _|  _|
-  \___|
-  _|  _| \__| \__,_| \__| _| \___/  _|  _|
-  _|
+   \  |             |           _ _|                    |                                |           |   _)
+    \ |   _ \    _` |   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \  __ \   __|   _` |  __|  |   _ \   __ \
+  |\  |  (   |  (   |   __/       |   |   |   |  |   |  |   __/  |   |   |   __/  |   |  |    (   |  |    |  (   |  |   |
+ _| \_| \___/  \__,_| \___|     ___| _|  _|  _|  .__/  _| \___| _|  _|  _| \___| _|  _| \__| \__,_| \__| _| \___/  _|  _|
+                                                _|
 */
 
 /*** covering distance of subtree at current node ***/
@@ -634,20 +259,18 @@ Tree<recType, Metric>::~Tree() {
         return p;
     }
 
-/*
-  __ __|                    _ _|                    | |           |   _)
-  |   __|  _ \   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \  __
-  \   __|   _` |  __|  |   _ \   __ \ |  |     __/   __/       |   |   |   |  |
-  |  |   __/  |   |   |   __/  |   |  |    (   |  |    |  (   |  |   |
-  _| _|   \___| \___|     ___| _|  _|  _|  .__/  _| \___| _|  _|  _| \___| _|
-  _| \__| \__,_| \__| _| \___/  _|  _|
-  _|
-*/
+    /*
+       __ __|                    _ _|                    |                                |           |   _)
+          |   __|  _ \   _ \       |   __ `__ \   __ \   |   _ \  __ `__ \    _ \  __ \   __|   _` |  __|  |   _ \   __ \
+          |   |     __/   __/      |   |   |   |  |   |  |   __/  |   |   |   __/  |   |  |    (   |  |    |  (   |  |   |
+         _| _|   \___| \___|    ___|  _|  _|  _|  .__/  _| \___| _|  _|  _| \___| _|  _| \__| \__,_| \__| _| \___/  _|  _|
+                                                 _|
+    */
 
 /*
-  __|                   |                   |
-  (      _ \    \  (_-<   _|   _| |  |   _|   _|   _ \   _|
-  \___| \___/ _| _| ___/ \__| _|  \_,_| \__| \__| \___/ _|
+    __|                   |                   |
+  (       _ \     \  (_-<   _|   _| |  |   _|   _|   _ \   _|
+  \___| \___/ _| _| ___/  \__| _|  \_,_| \__| \__| \___/ _|
 
 */
 
@@ -703,14 +326,12 @@ Tree<recType, Metric>::~Tree() {
         delete root;
     }
 
-/*
-  |     __|  |    _)  |      |                 _ )        _ \ _) |
-  (_-<   _ \   _| _|  (       \   |  |   _` |   _| -_)    \   _ \  |  |  |  | |
-  (_-<   _|   _` |    \    _|   -_)
-  ___/ \___/ _| \__| \___| _| _| _| _| \__,_| _| \___| _| _| ___/ \_, | ___/ _|
-  ___/ \__| \__,_| _| _| \__| \___|
-  ___/
-*/
+    /*
+                |     __|  |    _)  |      |                 _ )        _ \ _)       |
+ (_-<   _ \   _| _|  (       \   |  |   _` |   _| -_)    \   _ \  |  |  |  | | (_-<   _|   _` |    \    _|   -_)
+ ___/ \___/ _| \__| \___| _| _| _| _| \__,_| _| \___| _| _| ___/ \_, | ___/ _| ___/ \__| \__,_| _| _| \__| \___|
+                                                                 ___/
+    */
     template <class recType, class Metric>
     template <typename pointOrNodeType>
     std::tuple<std::vector<int>,
@@ -731,7 +352,7 @@ Tree<recType, Metric>::~Tree() {
 
 /*
   _ _|                      |
-  |     \  (_-<   -_)   _| _|
+   |      \  (_-<   -_)   _| _|
   ___| _| _| ___/ \___| _| \__|
 */
     template <class recType, class Metric>
@@ -1179,8 +800,8 @@ Tree<recType, Metric>::~Tree() {
     }
 
 /*
-  _ \               __ __|            |
-  |  |  -_) \ \ /      |   _ \   _ \  | (_-<
+  _ \                __ __|            |
+  |   |  -_) \ \ /      |   _ \   _ \  | (_-<
   ___/ \___|  \_/      _| \___/ \___/ _| ___/
   debugging functions
 */
@@ -1394,12 +1015,6 @@ Tree<recType, Metric>::~Tree() {
     template <class Archive>
     inline void Tree<recType, Metric>::serialize_aux(Node_ptr node,
                                                      Archive &archive) {
-        //  std::stack<Node_ptr> nodeStack;
-        //  Node_ptr curNode = node;
-        //  nodeStack.push(curNode);
-        //  while(!nodeStack.empty()) {
-        //    curNode = nodeStack.top();
-        //    nodeStack.pop();
         SerializedNode<recType, Metric> sn(node);
         if (node->children.size() > 0) {
             // sn.save(archive, 0);
@@ -1408,12 +1023,9 @@ Tree<recType, Metric>::~Tree() {
                 serialize_aux(c, archive);
             }
             SerializedNode<recType, Metric> snn(nullptr);
-            // snn.save(archive, 0);
             archive << SERIALIZATION_NVP2("node", snn);
         } else {
-            //    sn.save(archive, 0);
             archive << SERIALIZATION_NVP2("node", sn);
-            // archive & SerializedNode<recType, Metric>(node);
         }
     }
 
@@ -1433,22 +1045,6 @@ Tree<recType, Metric>::~Tree() {
         SerializedNode<recType, Metric> n;
         istr &n;
         return n;
-        // if(istr.peek() == ')') {
-        //   istr.ignore();
-        //   return std::make_tuple(nullptr,false);
-        // }
-        // unsigned ID;
-        // int level;
-        // Distance parent_distance;
-        // char childrens;
-        // istr >> ID >> level >> parent_distance >> childrens;
-        // Node_ptr node = new Node();
-        // node->ID = ID;
-        // node->level = level;
-        // node->parent_dist = parent_distance;
-        // node->data = deserializer(istr);
-        // bool has_children = (childrens == 't');
-        // return std::make_tuple(node,has_children);
     }
 
     template <class recType, class Metric>
@@ -1458,8 +1054,6 @@ Tree<recType, Metric>::~Tree() {
         std::unique_lock<std::shared_timed_mutex> lk(global_mut);
         (void)lk;
 
-        //  input & root_node;
-        // root_node.load(input, 0);
         try {
             input >> SERIALIZATION_NVP2("node", node);
             std::stack<Node_ptr> parentstack;

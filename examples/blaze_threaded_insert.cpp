@@ -3,7 +3,7 @@
 # include <random>
 # include <thread>
 # include <blaze/Math.h>
-# include "../assets/assets.cpp"
+# include "assets/assets.cpp"
 # include "../metric_space.hpp"
 
 /*** define custom metric ***/
