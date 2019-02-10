@@ -3,7 +3,7 @@
 #include <functional>
 #include <node_api.h>
 #include <cassert>
-#include "metric_search.hpp"
+#include "metric_space.hpp"
 #include "convert.hpp"
 
 #define NAPI_CALL(x)  assert((x) == napi_ok)
