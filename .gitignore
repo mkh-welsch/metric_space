@@ -1,14 +1,36 @@
-# Ignore all
-*
+# Prerequisites
+*.d
 
-# Unignore all with extensions
-!*.*
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-# Unignore all dirs
-!*/
+# Precompiled Headers
+*.gch
+*.pch
 
-n-api/node_modules/
-n-api/lib/binding/*
-n-api/lib/binding/*
-n-api/build/
-build/
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Dirs
+.vscode
+.DS_Store

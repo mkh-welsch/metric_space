@@ -1,25 +1,13 @@
-﻿/* Signal Empowering Technology
-   presents
+﻿/* 
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-   ███╗   ███╗███████╗████████╗██████╗ ██╗ ██████╗    ███████╗███████╗ █████╗ ██████╗  ██████╗██╗  ██╗
-   ████╗ ████║██╔════╝╚══██╔══╝██╔══██╗██║██╔════╝    ██╔════╝██╔════╝██╔══██╗██╔══██╗██╔════╝██║  ██║
-   ██╔████╔██║█████╗     ██║   ██████╔╝██║██║         ███████╗█████╗  ███████║██████╔╝██║     ███████║
-   ██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗██║██║         ╚════██║██╔══╝  ██╔══██║██╔══██╗██║     ██╔══██║
-   ██║ ╚═╝ ██║███████╗   ██║   ██║  ██║██║╚██████╗    ███████║███████╗██║  ██║██║  ██║╚██████╗██║  ██║
-   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝    ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
-   Licensed under MPL 2.0.
-   Michael Welsch (c) 2018.
-
-   a library for metric search algorithms and data containers
-
-   This Source Code Form is subject to the terms of the Mozilla Public
-   License, v. 2.0. If a copy of the MPL was not distributed with this
-   file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
+Signal Empowering Technology ®Michael Welsch
 */
 
-#ifndef _METRIC_SEARCH_HPP
-#define _METRIC_SEARCH_HPP
+#ifndef _METRIC_SEARCH_TREE_HPP
+#define _METRIC_SEARCH_TREE_HPP
 
 #include <atomic>
 #include <fstream>
@@ -34,7 +22,7 @@
 #include <functional>
 #include <tuple>
 #include <unordered_set>
-namespace metric_search
+namespace metric_space
 {
 /*
   _ \         _|             |  |       \  |        |       _)      
@@ -220,6 +208,6 @@ namespace metric_search
 
 } // end namespace
 
-#include "metric_search.cpp" // include the implementation
+#include "search_tree.cpp" // include the implementation
 
-#endif //_METRIC_SEARCH_HPP
+#endif //_METRIC_SEARCH_TREE_HPP
