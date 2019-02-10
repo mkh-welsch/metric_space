@@ -130,13 +130,42 @@ namespace metric_space
         Distance metric(const recType & p1, const recType & p2) const { return metric_(p1,p2);}
 
     public:
-  
+        /***
+          cluster tree nodes according to distribution
+          @param distribution vector with percents of amount of nodes, this vector should be sorted,
+          otherwise metric_space::unsorted_distribution_exception would be thrown. If distribution vector
+          containd value less than zero or greate than 1, the metric_space::bad_distribution_exception would be thrown.
+
+          @param points vector with data values
+
+          @param indexes indexes in points vector, as a source set only data records with corresponding indices will be used.
+         */
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
-                                                         const std::vector<std::size_t> &IDS,
+                                                         const std::vector<std::size_t> &indexes,
                                                          const std::vector<recType> &points);
 
+        /***
+          cluster tree nodes according to distribution
+
+          @param distribution vector with percents of amount of nodes, this vector should be sorted,
+          otherwise metric_space::unsorted_distribution_exception would be thrown. If distribution vector
+          containd value less than zero or greate than 1, the metric_space::bad_distribution_exception would be thrown.
+
+          @param IDS id's of nodes in tree, these nodes would be used as a source set.
+        */
+        
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<std::size_t> &IDS);
+
+        /***
+            cluster tree nodes according to distribution
+
+            @param distribution vector with percents of amount of nodes, this vector should be sorted,
+            otherwise metric_space::unsorted_distribution_exception would be thrown. If distribution vector
+            containd value less than zero or greate than 1, the metric_space::bad_distribution_exception would be thrown.
+
+            @param points vector with data values.  these values would be used as a source set.
+        */
 
         std::vector<std::vector<std::size_t>> clustering(const std::vector<double> &distribution,
                                                          const std::vector<recType> &points);
