@@ -6,8 +6,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 Signal Empowering Technology ®Michael Welsch
 */
 
-#ifndef _METRIC_SEARCH_TREE_HPP
-#define _METRIC_SEARCH_TREE_HPP
+#ifndef _METRIC_SPACE_TREE_HPP
+#define _METRIC_SPACE_TREE_HPP
 
 #include <atomic>
 #include <fstream>
@@ -237,6 +237,6 @@ namespace metric_space
 
 } // end namespace
 
-#include "search_tree.cpp" // include the implementation
+#include "tree.cpp" // include the implementation
 
-#endif //_METRIC_SEARCH_TREE_HPP
+#endif //_METRIC_SPACE_TREE_HPP
