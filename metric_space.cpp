@@ -1,1 +1,3 @@
-#include "details/search_tree.hpp"
+#include "details/matrix.hpp"
+#include "details/graph.hpp"
+#include "details/tree.hpp"

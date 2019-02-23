@@ -3,7 +3,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.*/
 /* Michael Welsch (c) 2018 */
 
-#include "search_tree.hpp" // back reference for header only use
+#include "tree.hpp" // back reference for header only use
 #include <algorithm>
 #include <cmath>
 #include <functional>
