@@ -137,13 +137,19 @@ public:
 
     std::vector<std::vector<size_t>> getNeighbours(const size_t nodeIndex, const size_t maxDeep);
 
-    std::vector<std::vector<size_t>> getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
+//    std::vector<std::vector<size_t>> getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
 
-//    typename std::enable_if<std::is_same<WeightType, bool>::value, std::vector<std::vector<size_t>>>::type
-//    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
+    template <typename T = WeightType, bool denseFlag = isDense>
+    typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
+    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
 
-//    typename std::enable_if<std::is_same<WeightType, bool>::value, std::vector<std::vector<size_t>>>::type
-//    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
+    template <typename T = WeightType, bool denseFlag = isDense>
+    typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
+    getNeighborsNew/*<WeightType, false, isSymmetric>*/(const size_t nodeIndex, const size_t maxDeep);
+
+    template <typename T = WeightType, bool denseFlag = isDense>
+    typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
+    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
 
     MatrixType get_matrix();
 

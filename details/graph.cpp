@@ -686,22 +686,27 @@ void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector
 //}
 
 
-//template <typename WeightType, bool isDense, bool isSymmetric>
-//typename std::enable_if<!std::is_same<WeightType, bool>::value, std::vector<std::vector<size_t>>>::type
-//Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
-//{
-//    //if (isWeighted)
-//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-//}
+
+template <typename WeightType, bool isDense, bool isSymmetric>
+template <typename T, bool denseFlag>
+typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
+Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+{
+    std::cout << "non-default value type specialization called\n";
+//    if (isWeighted)
+        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+}
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-std::vector<std::vector<size_t>> Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
-//typename std::enable_if<std::is_same<WeightType, bool>::value, std::vector<std::vector<size_t>>>::type
-//Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+template <typename T, bool denseFlag>
+//std::vector<std::vector<size_t>> Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
+Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, false, isSymmetric>*/(const size_t index, const size_t maxDeep)
 {
-    if (isWeighted)
-        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+    std::cout << "Sparse & default value type specialization called\n";
+//    if (isWeighted)
+//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
     // TODO add enable_if and specialize for bool instaed if runtime check!!
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
@@ -755,6 +760,16 @@ std::vector<std::vector<size_t>> Graph_blaze<WeightType, isDense, isSymmetric>::
 }
 
 
+template <typename WeightType, bool isDense, bool isSymmetric>
+template <typename T, bool denseFlag>
+typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
+Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+{
+    std::cout << "isDense & default value type specialization called\n";
+//    if (isWeighted)
+        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+
+}
 
 template <typename WeightType, bool isDense, bool isSymmetric>
 typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType

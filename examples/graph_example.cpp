@@ -9,7 +9,7 @@ int main()
 
     size_t w = 3;
     size_t h = 3;
-    size_t node = 2;
+    size_t node = 1;
     size_t max_depth = 4;
 
     auto g = metric::mapping::SOM_details::Grid4_blaze(h, w);
@@ -57,7 +57,7 @@ int main()
     edges.emplace_back(1, 2);
     edges.emplace_back(2, 0);
 
-    auto g_custom = metric::mapping::SOM_details::Graph_blaze<float, false, false>(); // edge value type, isDense, isSymmetric
+    auto g_custom = metric::mapping::SOM_details::Graph_blaze<bool, false, false>(); // edge value type, isDense, isSymmetric
     g_custom.buildEdges(edges);
 
     std::cout << "\ncustom graph:\n";
