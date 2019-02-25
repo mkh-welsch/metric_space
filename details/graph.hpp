@@ -107,13 +107,7 @@ template <typename WeightType = bool, bool isDense = false, bool isSymmetric = t
 class Graph_blaze {
 
 private:
-//    typedef typename std::conditional<
-//        isWeighted,
-//        WeightType,
-//        bool
-//        >::type ElementType;
-
-    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // TODO remove
+    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in old getNeighbours method, TODO remove
 
     typedef typename std::conditional<
         isDense,
@@ -166,8 +160,6 @@ protected:
 
 //    void buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs); // moved to public
 
-//    void neighboursWalk(const size_t index, std::unordered_map<size_t, size_t> &indexes, size_t deep,
-//                        const size_t maxDeep);
 };
 
 

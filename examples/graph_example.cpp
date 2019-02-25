@@ -5,12 +5,17 @@
 
 int main()
 {
-    std::cout << "Testing Graph_blaze\n";
+
+
 
     size_t w = 3;
     size_t h = 3;
     size_t node = 1;
     size_t max_depth = 4;
+
+    //*
+    std::cout << "Testing Graph_blaze\n";
+
 
 //    auto g = metric::mapping::SOM_details::Grid4_blaze(h, w);
 //    auto g = metric::mapping::SOM_details::Grid6_blaze(h, w);
@@ -49,6 +54,7 @@ int main()
         for (size_t j=0; j<neighbors_old[i].size(); j++)
             std::cout << i << " | " << neighbors_old[i][j] << "\n";
 
+    //*/
 
     // testing template parameters
 
@@ -57,7 +63,7 @@ int main()
     edges.emplace_back(1, 2);
     edges.emplace_back(2, 0);
 
-    auto g_custom = metric::mapping::SOM_details::Graph_blaze<bool, false, false>(); // edge value type, isDense, isSymmetric
+    auto g_custom = metric::mapping::SOM_details::Graph_blaze<bool, true, false>(); // edge value type, isDense, isSymmetric
     g_custom.buildEdges(edges);
 
     std::cout << "\ncustom graph:\n";

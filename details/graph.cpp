@@ -444,14 +444,12 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index,
 
     if (isWeighted)
         return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-    // TODO add enable_if and specialize for bool instaed if runtime check!!
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
 
     std::stack<typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType::Iterator> iterator_stack;
     std::stack<size_t> row_stack;
-    // std::vector<size_t> nodes = std::vector<size_t>(m.columns(), 0); // instead of map, to save foung edges in paallel to output and check depth quickly
     std::unordered_map<size_t, size_t> indices;
 
     row_stack.push(index);
@@ -495,24 +493,6 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index,
         iterator_stack.top()++; // step along the level
     }
 
-
-
-//    // old call of neighboursWalk:
-
-//    if (isWeighted)
-//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-
-//    // TODO add enable_if instaed if runtime check!!
-
-//    std::vector<std::vector<size_t>> neighboursList(maxDeep + 1);
-
-//    std::unordered_map<size_t, size_t> indexes;
-//    neighboursWalk(nodeIndex, indexes, 0, maxDeep);
-
-//    for (const auto& [index, deep]: indexes) {
-//        neighboursList[deep].push_back(index);
-//    }
-
     for (const auto& [index, deep]: indices) {
         neighboursList[deep].push_back(index);
     }
@@ -536,6 +516,7 @@ size_t Graph_blaze<WeightType, isDense, isSymmetric>::modularPow(const size_t ba
     return c;
 }
 
+
 template <typename WeightType, bool isDense, bool isSymmetric>
 void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
 {
@@ -555,11 +536,17 @@ void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector
         nodesNumber = max;
 
     m.resize((unsigned long)max, (unsigned long)max);
+    m.reset();
 
     //m.reserve(edgePairs.size()); // TODO optimize via reserve-insert-finalize idiom
     for (const auto & [i, j]: edgesPairs) {
+        // std::cout << "m:\n" << m << "\n";
         if (i != j)
+        {
             m(i, j) = 1;
+            // std::cout << "adding to matrix: i=" << i << ", j=" << j << "\n";
+        }
+
         /* // old code. TODO on the optimization stage: restore faster insertion via .insert(...) with compile-time check/specialization
         {
             // edgesSets[i].insert(j);
@@ -607,87 +594,6 @@ void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector
 }
 
 
-//template <typename WeightType, bool isDense, bool isSymmetric>
-//void Graph_blaze<WeightType, isDense, isSymmetric>::neighboursWalk(
-//        const size_t index,
-//        std::unordered_map<size_t, size_t> &indices,
-//        size_t deep, // for compatibility
-//        const size_t maxDeep)
-//{
-//    // std::cout << "Graph matrix: \n" << m << "\n";
-
-//    if (index >= m.columns())
-//        return;
-
-////    std::stack<blaze::CompressedMatrix<double>::Iterator> iterator_stack;
-//    std::stack<typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType::Iterator> iterator_stack;
-//    std::stack<size_t> row_stack;
-
-//    row_stack.push(index);
-//    iterator_stack.push(m.begin(index)); // stacks are ever processed tigether (so they are always of the same size)
-//    indices[row_stack.top()] = 0;
-
-//    size_t depth = 1;
-
-//    while (true) // TODO optimize order of node processing!! (prevent from entering max depth prior to traversing all nodes of the current depth)
-//    {
-//        // code for debugging, TODO remove
-////        std::cout << "\nnext iteration:\n";
-////        std::cout << "row " << row_stack.top() << ", el " << iterator_stack.top()->index() << " | " << iterator_stack.top()->value() << "\n";
-////        std::cout << "row end index:" << m.end(row_stack.top())->index() << "\n";
-////        if ( iterator_stack.top() == m.end(row_stack.top()))
-////            std::cout << "equal\n";
-////        // std::cout << row_stack.top() << "\n";
-//        // end of code for debugging
-
-//        if ( iterator_stack.top() == m.end(row_stack.top()) || depth > maxDeep ) // end of row or max depth reached
-//        {
-//            row_stack.pop(); // return to the previous level
-//            iterator_stack.pop();
-//            depth--;
-
-//            if (depth < 1) // finish
-//                break;
-//        }
-//        else
-//        {
-//            row_stack.push(iterator_stack.top()->index()); // enter the next level
-//            iterator_stack.push(m.begin(row_stack.top()));
-//            depth++;
-
-//            auto search = indices.find(row_stack.top());
-//            if (search == indices.end() || search->second > depth - 1) // node not exists or its depth is greater than current
-//            {
-//                indices[row_stack.top()] = depth - 1; // write node into output
-//                // std::cout << "added node: " << row_stack.top() << "\n"; // output for DEBUG, TODO remove
-//                // std::cout << "depth: " << depth - 1 << "\n";
-//            }
-
-//            continue; // prevent from a step along the level when entered the new level
-//        }
-//        iterator_stack.top()++; // step along the level
-//    }
-
-//    /* // old recursion code
-//    if (deep > maxDeep) {
-//        return;
-//    }
-
-//    auto iterator = indices.find(index);
-//    if (iterator != indices.end()) {
-//        if (iterator->second <= deep) {
-//            return;
-//        }
-//    }
-
-//    indices[index] = deep;
-
-//    for (const auto& i: edges[index]) {
-//        neighboursWalk(i, indices, deep + 1, maxDeep);
-//    }
-//    //*/
-//}
-
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
@@ -696,8 +602,7 @@ typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::
 Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
 {
     std::cout << "non-default value type specialization called\n";
-//    if (isWeighted)
-        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+    return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
 }
 
 
@@ -708,19 +613,8 @@ typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vecto
 Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, false, isSymmetric>*/(const size_t index, const size_t maxDeep)
 {
     std::cout << "Sparse & default value type specialization called\n";
-//    if (isWeighted)
-//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-    // TODO add enable_if and specialize for bool instaed if runtime check!!
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
-
-//    std::unordered_map<size_t, size_t> indexes;
-//    neighboursWalk(nodeIndex, indexes, 0, maxDeep);
-
-//    for (const auto& [index, deep]: indexes) {
-//        neighboursList[deep].push_back(index);
-//    }
-
 
     if (index >= m.columns())
         return neighboursList;
@@ -754,7 +648,7 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, fal
                 //std::cout << "depth: " << depth << "\n";
                 //*/
 
-                /* // code for dense
+                /* // code for dense, not appropriate for sparse due to m.end(...)
                 size_t idx = it - m.begin(el);
                 if (m(el, idx) != 1)
                     continue;
@@ -788,25 +682,13 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t inde
 {
     std::cout << "isDense & default value type specialization called\n";
 
-    //    if (isWeighted)
-    //        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-
-
         std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
-
-    //    std::unordered_map<size_t, size_t> indexes;
-    //    neighboursWalk(nodeIndex, indexes, 0, maxDeep);
-
-    //    for (const auto& [index, deep]: indexes) {
-    //        neighboursList[deep].push_back(index);
-    //    }
-
 
         if (index >= m.columns())
             return neighboursList;
 
 
-        // new ver
+        // new ver, CODE DUBBING: similar to sparse specialization except the way m elements are accessed
         std::vector<size_t> parents;
         std::vector<size_t> children;
         std::vector<bool> nodes = std::vector<bool>(m.columns(), false);
@@ -843,12 +725,9 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t inde
         }
 
         return neighboursList;
-
-
-//    if (isWeighted)
-//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
-
 }
+
+
 
 template <typename WeightType, bool isDense, bool isSymmetric>
 typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType
