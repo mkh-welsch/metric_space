@@ -102,8 +102,8 @@ class Margulis : public Graph {
 
 // Graph_blaze
 
-
-template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true> //  TODO implement isDense & reorder params
+//template <typename WeightType = bool, bool isDense = true, bool isSymmetric = true> // incorrect defaults, needed only to test dense
+template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true> // correct defaults
 class Graph_blaze {
 
 private:
@@ -113,7 +113,7 @@ private:
 //        bool
 //        >::type ElementType;
 
-    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value;
+    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // TODO remove
 
     typedef typename std::conditional<
         isDense,

@@ -436,6 +436,7 @@ bool Graph_blaze<WeightType, isDense, isSymmetric>::isValid() {
     return valid;
 }
 
+//* // left for comparison
 template <typename WeightType, bool isDense, bool isSymmetric>
 std::vector<std::vector<size_t>>
 Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
@@ -518,6 +519,8 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index,
 
     return neighboursList;
 }
+
+//*/
 
 template <typename WeightType, bool isDense, bool isSymmetric>
 size_t Graph_blaze<WeightType, isDense, isSymmetric>::modularPow(const size_t base, const size_t exponent, const size_t modulus)
@@ -740,14 +743,32 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, fal
 
         for (auto el : parents)
         {
-            for (it = m.begin(el); it!=m.end(el); it++)
+            for (it = m.begin(el); it!=m.end(el); it++) // for dense and for sparse m.end(...) has different meaning!..
             {
+                //* // tested on sparse only
                 if (!nodes[it->index()])
                     neighboursList[depth].push_back(it->index()); // write node into output
                 children.push_back(it->index());
                 nodes[it->index()] = true;
                 //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
                 //std::cout << "depth: " << depth << "\n";
+                //*/
+
+                /* // code for dense
+                size_t idx = it - m.begin(el);
+                if (m(el, idx) != 1)
+                    continue;
+                if (!nodes[idx])
+                    neighboursList[depth].push_back(idx); // write node into output
+                children.push_back(idx);
+                nodes[idx] = true;
+                std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
+                std::cout << "parent: " << el << "\n";
+                std::cout << "depth: " << depth << "\n";
+                std::cout << "value: " << m(el, idx) << "\n";
+                std::cout << "last index in row: " << m.end(el) - m.begin(el) << "\n";
+
+                //*/
             }
         }
 
@@ -766,8 +787,66 @@ typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector
 Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
 {
     std::cout << "isDense & default value type specialization called\n";
+
+    //    if (isWeighted)
+    //        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+
+
+        std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
+
+    //    std::unordered_map<size_t, size_t> indexes;
+    //    neighboursWalk(nodeIndex, indexes, 0, maxDeep);
+
+    //    for (const auto& [index, deep]: indexes) {
+    //        neighboursList[deep].push_back(index);
+    //    }
+
+
+        if (index >= m.columns())
+            return neighboursList;
+
+
+        // new ver
+        std::vector<size_t> parents;
+        std::vector<size_t> children;
+        std::vector<bool> nodes = std::vector<bool>(m.columns(), false);
+
+        parents.push_back(index);
+        neighboursList[0].push_back(index);
+        nodes[index] = true;
+
+        size_t depth = 1;
+
+        while (depth<=maxDeep)
+        {
+            typename MatrixType::Iterator it;
+
+            for (auto el : parents)
+            {
+                for (it = m.begin(el); it!=m.end(el); it++)
+                {
+                    size_t idx = it - m.begin(el);
+                    if (m(el, idx) != 1)
+                        continue;
+                    if (!nodes[idx])
+                        neighboursList[depth].push_back(idx); // write node into output
+                    children.push_back(idx);
+                    nodes[idx] = true;
+                    //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
+                    //std::cout << "depth: " << depth << "\n";
+                }
+            }
+
+            depth++;
+            parents.swap(children);
+            children = {};
+        }
+
+        return neighboursList;
+
+
 //    if (isWeighted)
-        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
+//        return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
 
 }
 

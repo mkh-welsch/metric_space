@@ -12,9 +12,9 @@ int main()
     size_t node = 1;
     size_t max_depth = 4;
 
-    auto g = metric::mapping::SOM_details::Grid4_blaze(h, w);
+//    auto g = metric::mapping::SOM_details::Grid4_blaze(h, w);
 //    auto g = metric::mapping::SOM_details::Grid6_blaze(h, w);
-//    auto g = metric::mapping::SOM_details::Grid8_blaze(h, w);
+    auto g = metric::mapping::SOM_details::Grid8_blaze(h, w);
 //    auto g = metric::mapping::SOM_details::Margulis_blaze(h*w);
 //    auto g = metric::mapping::SOM_details::Paley_blaze(h*w);
 //    auto g = metric::mapping::SOM_details::LPS_blaze(h*w); // TODO FIX: no nodes in graph
@@ -35,9 +35,9 @@ int main()
             std::cout << i << " | " << neighborsNew[i][j] << "\n";
 
 
-    auto g_old = metric::mapping::SOM_details::Grid4(h, w);
+//    auto g_old = metric::mapping::SOM_details::Grid4(h, w);
 //    auto g_old = metric::mapping::SOM_details::Grid6(h, w);
-//    auto g_old = metric::mapping::SOM_details::Grid8(h, w);
+    auto g_old = metric::mapping::SOM_details::Grid8(h, w);
 //    auto g_old = metric::mapping::SOM_details::Margulis(h*w);
 //    auto g_old = metric::mapping::SOM_details::Paley(h*w);
 //    auto g_old = metric::mapping::SOM_details::LPS(h*w); // TODO FIX: no nodes in graph
