@@ -1,12 +1,11 @@
 #include "graph.hpp"
-#include "graph/connected_components.hpp"
+//#include "graph/connected_components.hpp"
 
 #include <unordered_set> // for old Graph code, TODO remove
 
 
 namespace metric {
-namespace mapping {
-namespace SOM_details {
+namespace graph {
 
 
 // -------
@@ -14,20 +13,20 @@ namespace SOM_details {
 
 
 
-Graph::Graph(size_t nodesNumber) : nodesNumber(nodesNumber), valid(false) {};
+Graph_old::Graph_old(size_t nodesNumber) : nodesNumber(nodesNumber), valid(false) {};
 
-Graph::~Graph() = default;
+Graph_old::~Graph_old() = default;
 
-size_t Graph::getNodesNumber()
+size_t Graph_old::getNodesNumber()
 {
         return nodesNumber;
 }
 
-bool Graph::isValid() {
+bool Graph_old::isValid() {
         return valid;
 }
 
-std::vector<std::vector<size_t>> Graph::getNeighbours(const size_t nodeIndex, const size_t maxDeep)
+std::vector<std::vector<size_t>> Graph_old::getNeighbours(const size_t nodeIndex, const size_t maxDeep)
 {
         std::vector<std::vector<size_t>> neighboursList(maxDeep + 1);
 
@@ -41,7 +40,7 @@ std::vector<std::vector<size_t>> Graph::getNeighbours(const size_t nodeIndex, co
         return neighboursList;
 }
 
-size_t Graph::modularPow(const size_t base, const size_t exponent, const size_t modulus)
+size_t Graph_old::modularPow(const size_t base, const size_t exponent, const size_t modulus)
 {
         if (modulus == 1) {
                 return 1;
@@ -54,7 +53,7 @@ size_t Graph::modularPow(const size_t base, const size_t exponent, const size_t 
         return c;
 }
 
-void Graph::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
+void Graph_old::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
 {
         std::vector<std::unordered_set<size_t>> edgesSets(nodesNumber);
 
@@ -74,7 +73,7 @@ for (auto i = 0; i < edgesSets.size(); ++i) {
         }
 }
 
-void Graph::neighboursWalk(const size_t index, std::unordered_map<size_t, size_t> &indexes, size_t deep,
+void Graph_old::neighboursWalk(const size_t index, std::unordered_map<size_t, size_t> &indexes, size_t deep,
                                                   const size_t maxDeep)
 {
         if (deep > maxDeep) {
@@ -100,7 +99,7 @@ void Graph::neighboursWalk(const size_t index, std::unordered_map<size_t, size_t
         }
 }
 
-Grid4::Grid4(size_t nodesNumber) : Graph(nodesNumber)
+Grid4_old::Grid4_old(size_t nodesNumber) : Graph_old(nodesNumber)
 {
         int s = sqrt(nodesNumber);
         if ((s * s) != nodesNumber) {
@@ -110,12 +109,12 @@ Grid4::Grid4(size_t nodesNumber) : Graph(nodesNumber)
         }
 }
 
-Grid4::Grid4(size_t width, size_t height) : Graph(width * height)
+Grid4_old::Grid4_old(size_t width, size_t height) : Graph_old(width * height)
 {
         construct(width, height);
 }
 
-void Grid4::construct(size_t width, size_t height)
+void Grid4_old::construct(size_t width, size_t height)
 {
         edges.resize(width * height);
 
@@ -152,7 +151,7 @@ void Grid4::construct(size_t width, size_t height)
         valid = true;
 }
 
-Grid6::Grid6(size_t nodesNumber) : Graph(nodesNumber)
+Grid6_old::Grid6_old(size_t nodesNumber) : Graph_old(nodesNumber)
 {
         int s = sqrt(nodesNumber);
         if ((s * s) != nodesNumber) {
@@ -162,12 +161,12 @@ Grid6::Grid6(size_t nodesNumber) : Graph(nodesNumber)
         }
 }
 
-Grid6::Grid6(size_t width, size_t height) : Graph(width * height)
+Grid6_old::Grid6_old(size_t width, size_t height) : Graph_old(width * height)
 {
         construct(width, height);
 }
 
-void Grid6::construct(size_t width, size_t height)
+void Grid6_old::construct(size_t width, size_t height)
 {
         edges.resize(width * height);
 
@@ -232,7 +231,7 @@ if (j == width - 1) {
         valid = true;
 }
 
-Grid8::Grid8(size_t nodesNumber) : Graph(nodesNumber)
+Grid8_old::Grid8_old(size_t nodesNumber) : Graph_old(nodesNumber)
 {
         int s = sqrt(nodesNumber);
         if ((s * s) != nodesNumber) {
@@ -242,12 +241,12 @@ Grid8::Grid8(size_t nodesNumber) : Graph(nodesNumber)
         }
 }
 
-Grid8::Grid8(size_t width, size_t height) : Graph(width * height)
+Grid8_old::Grid8_old(size_t width, size_t height) : Graph_old(width * height)
 {
         construct(width, height);
 }
 
-void Grid8::construct(size_t width, size_t height)
+void Grid8_old::construct(size_t width, size_t height)
 {
         edges.resize(width * height);
 
@@ -284,7 +283,7 @@ void Grid8::construct(size_t width, size_t height)
         valid = true;
 }
 
-LPS::LPS(size_t nodesNumber) : Graph(nodesNumber)
+LPS_old::LPS_old(size_t nodesNumber) : Graph_old(nodesNumber)
 {
         if (!millerRabin(nodesNumber)) {
                 return;
@@ -308,7 +307,7 @@ LPS::LPS(size_t nodesNumber) : Graph(nodesNumber)
         valid = true;
 }
 
-bool LPS::millerRabin(const size_t nodesNumber)
+bool LPS_old::millerRabin(const size_t nodesNumber)
 {
         srand(time(NULL));
 
@@ -333,7 +332,7 @@ bool LPS::millerRabin(const size_t nodesNumber)
         return true;
 }
 
-bool LPS::miller_rabin_pass(const size_t a, const size_t s,
+bool LPS_old::miller_rabin_pass(const size_t a, const size_t s,
                                                         const size_t d, const size_t nodesNumber)
 {
         auto p = size_t(pow(a, d)) % nodesNumber;
@@ -351,7 +350,7 @@ bool LPS::miller_rabin_pass(const size_t a, const size_t s,
         return p == nodesNumber - 1;
 }
 
-Paley::Paley(size_t nodesNumber) : Graph(nodesNumber)
+Paley_old::Paley_old(size_t nodesNumber) : Graph_old(nodesNumber)
 {
         if (nodesNumber % 4 != 1) {
                 return;
@@ -379,7 +378,7 @@ Paley::Paley(size_t nodesNumber) : Graph(nodesNumber)
         valid = true;
 }
 
-Margulis::Margulis(size_t nodesNumber) : Graph(nodesNumber) {
+Margulis_old::Margulis_old(size_t nodesNumber) : Graph_old(nodesNumber) {
         int s = sqrt(nodesNumber);
         if ((s * s) != nodesNumber) {
                 valid = false;
@@ -417,29 +416,35 @@ Margulis::Margulis(size_t nodesNumber) : Graph(nodesNumber) {
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-Graph_blaze<WeightType, isDense, isSymmetric>::Graph_blaze(size_t nodesNumber) : nodesNumber(nodesNumber), valid(false) {};
+Graph<WeightType, isDense, isSymmetric>::Graph(size_t nodesNumber) : nodesNumber(nodesNumber), valid(false) {}
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-Graph_blaze<WeightType, isDense, isSymmetric>::Graph_blaze() : nodesNumber(0), valid(false) {};
+Graph<WeightType, isDense, isSymmetric>::Graph() : nodesNumber(0), valid(false) {}
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-Graph_blaze<WeightType, isDense, isSymmetric>::~Graph_blaze() = default;
+Graph<WeightType, isDense, isSymmetric>::Graph(const std::vector<std::pair<size_t, size_t>> & edgesPairs)
+{
+    buildEdges(edgesPairs);
+}
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-size_t Graph_blaze<WeightType, isDense, isSymmetric>::getNodesNumber()
+Graph<WeightType, isDense, isSymmetric>::~Graph() = default;
+
+template <typename WeightType, bool isDense, bool isSymmetric>
+size_t Graph<WeightType, isDense, isSymmetric>::getNodesNumber()
 {
     return nodesNumber;
 }
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-bool Graph_blaze<WeightType, isDense, isSymmetric>::isValid() {
+bool Graph<WeightType, isDense, isSymmetric>::isValid() {
     return valid;
 }
 
 //* // left for comparison
 template <typename WeightType, bool isDense, bool isSymmetric>
 std::vector<std::vector<size_t>>
-Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
+Graph<WeightType, isDense, isSymmetric>::getNeighboursOld(const size_t index, const size_t maxDeep)
 {
 
     if (isWeighted)
@@ -448,7 +453,7 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index,
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
 
-    std::stack<typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType::Iterator> iterator_stack;
+    std::stack<typename Graph<WeightType, isDense, isSymmetric>::MatrixType::Iterator> iterator_stack;
     std::stack<size_t> row_stack;
     std::unordered_map<size_t, size_t> indices;
 
@@ -503,7 +508,7 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index,
 //*/
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-size_t Graph_blaze<WeightType, isDense, isSymmetric>::modularPow(const size_t base, const size_t exponent, const size_t modulus)
+size_t Graph<WeightType, isDense, isSymmetric>::modularPow(const size_t base, const size_t exponent, const size_t modulus)
 {
     if (modulus == 1) {
         return 1;
@@ -518,7 +523,7 @@ size_t Graph_blaze<WeightType, isDense, isSymmetric>::modularPow(const size_t ba
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
+void Graph<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
 {
     //std::vector<std::unordered_set<size_t>> edgesSets(nodesNumber);
 
@@ -599,9 +604,9 @@ void Graph_blaze<WeightType, isDense, isSymmetric>::buildEdges(const std::vector
 template <typename WeightType, bool isDense, bool isSymmetric>
 template <typename T, bool denseFlag>
 typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
-Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-    std::cout << "non-default value type specialization called\n";
+    // std::cout << "non-default value type specialization called\n";
     return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
 }
 
@@ -610,9 +615,9 @@ template <typename WeightType, bool isDense, bool isSymmetric>
 template <typename T, bool denseFlag>
 //std::vector<std::vector<size_t>> Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
 typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
-Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, false, isSymmetric>*/(const size_t index, const size_t maxDeep)
+Graph<WeightType, isDense, isSymmetric>::getNeighbours/*<WeightType, false, isSymmetric>*/(const size_t index, const size_t maxDeep)
 {
-    std::cout << "Sparse & default value type specialization called\n";
+    // std::cout << "Sparse & default value type specialization called\n";
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
@@ -644,8 +649,8 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, fal
                     neighboursList[depth].push_back(it->index()); // write node into output
                 children.push_back(it->index());
                 nodes[it->index()] = true;
-                //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
-                //std::cout << "depth: " << depth << "\n";
+                // std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
+                // std::cout << "depth: " << depth << "\n";
                 //*/
 
                 /* // code for dense, not appropriate for sparse due to m.end(...)
@@ -678,9 +683,9 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew/*<WeightType, fal
 template <typename WeightType, bool isDense, bool isSymmetric>
 template <typename T, bool denseFlag>
 typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
-Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
+Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-    std::cout << "isDense & default value type specialization called\n";
+        // std::cout << "isDense & default value type specialization called\n";
 
         std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
@@ -730,8 +735,8 @@ Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t inde
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
-typename Graph_blaze<WeightType, isDense, isSymmetric>::MatrixType
-Graph_blaze<WeightType, isDense, isSymmetric>::get_matrix()
+typename Graph<WeightType, isDense, isSymmetric>::MatrixType
+Graph<WeightType, isDense, isSymmetric>::get_matrix()
 {
     return m;
 }
@@ -746,7 +751,7 @@ Graph_blaze<WeightType, isDense, isSymmetric>::get_matrix()
 // Grid4_blaze
 
 //template <bool isWeighted=false, bool isSymmetric = false, typename WeightType = char>
-Grid4_blaze::Grid4_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
+Grid4::Grid4(size_t nodesNumber) : Graph<>(nodesNumber)
 {
     int s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
@@ -757,12 +762,12 @@ Grid4_blaze::Grid4_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
 }
 
 
-Grid4_blaze::Grid4_blaze(size_t width, size_t height) : Graph_blaze<>(width * height)
+Grid4::Grid4(size_t width, size_t height) : Graph<>(width * height)
 {
     construct(width, height);
 }
 
-void Grid4_blaze::construct(size_t width, size_t height)
+void Grid4::construct(size_t width, size_t height)
 {
     // edges.resize(width * height);
     unsigned long n_nodes = width*height;
@@ -814,7 +819,7 @@ void Grid4_blaze::construct(size_t width, size_t height)
 
 // Grig6_blaze
 
-Grid6_blaze::Grid6_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
+Grid6::Grid6(size_t nodesNumber) : Graph<>(nodesNumber)
 {
     int s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
@@ -824,12 +829,12 @@ Grid6_blaze::Grid6_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
     }
 }
 
-Grid6_blaze::Grid6_blaze(size_t width, size_t height) : Graph_blaze<>(width * height)
+Grid6::Grid6(size_t width, size_t height) : Graph<>(width * height)
 {
     construct(width, height);
 }
 
-void Grid6_blaze::construct(size_t width, size_t height)
+void Grid6::construct(size_t width, size_t height)
 {
     // edges.resize(width * height);
     unsigned long n_nodes = width*height;
@@ -922,7 +927,7 @@ void Grid6_blaze::construct(size_t width, size_t height)
 
 // Grid8_blaze
 
-Grid8_blaze::Grid8_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
+Grid8::Grid8(size_t nodesNumber) : Graph<>(nodesNumber)
 {
     int s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
@@ -932,12 +937,12 @@ Grid8_blaze::Grid8_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
     }
 }
 
-Grid8_blaze::Grid8_blaze(size_t width, size_t height) : Graph_blaze<>(width * height)
+Grid8::Grid8(size_t width, size_t height) : Graph<>(width * height)
 {
     construct(width, height);
 }
 
-void Grid8_blaze::construct(size_t width, size_t height)
+void Grid8::construct(size_t width, size_t height)
 {
 //    edges.resize(width * height);
 //    std::cout << "Creating Grid8\n";
@@ -989,7 +994,7 @@ void Grid8_blaze::construct(size_t width, size_t height)
 
 // Paley_blaze
 
-Paley_blaze::Paley_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
+Paley::Paley(size_t nodesNumber) : Graph<>(nodesNumber)
 {
     if (nodesNumber % 4 != 1) {
         return;
@@ -1024,7 +1029,7 @@ Paley_blaze::Paley_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
 
 // LPS_blaze
 
-LPS_blaze::LPS_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
+LPS::LPS(size_t nodesNumber) : Graph<>(nodesNumber)
 {
         if (!millerRabin(nodesNumber)) {
                 return;
@@ -1048,7 +1053,7 @@ LPS_blaze::LPS_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber)
         valid = true;
 }
 
-bool LPS_blaze::millerRabin(const size_t nodesNumber)
+bool LPS::millerRabin(const size_t nodesNumber)
 {
         srand(time(NULL));
 
@@ -1073,7 +1078,7 @@ bool LPS_blaze::millerRabin(const size_t nodesNumber)
         return true;
 }
 
-bool LPS_blaze::miller_rabin_pass(const size_t a, const size_t s,
+bool LPS::miller_rabin_pass(const size_t a, const size_t s,
                                                         const size_t d, const size_t nodesNumber)
 {
         auto p = size_t(pow(a, d)) % nodesNumber;
@@ -1098,7 +1103,7 @@ bool LPS_blaze::miller_rabin_pass(const size_t a, const size_t s,
 
 // Margulis_blaze
 
-Margulis_blaze::Margulis_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber) {
+Margulis::Margulis(size_t nodesNumber) : Graph<>(nodesNumber) {
     int s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
         valid = false;
@@ -1125,6 +1130,5 @@ Margulis_blaze::Margulis_blaze(size_t nodesNumber) : Graph_blaze<>(nodesNumber) 
 
 
 
-}
 }
 }

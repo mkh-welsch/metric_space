@@ -16,18 +16,17 @@ Signal Empowering Technology ®Michael Welsch
 
 
 namespace metric {
-namespace mapping {
-namespace SOM_details {
+namespace graph {
 
 
 // -------
 // old Graph code, TODO remove
 
 
-class Graph {
+class Graph_old {
         public:
-                explicit Graph(size_t nodesNumber);
-                ~Graph();
+                explicit Graph_old(size_t nodesNumber);
+                ~Graph_old();
 
                 size_t getNodesNumber();
                 bool isValid();
@@ -47,33 +46,33 @@ class Graph {
                                                         const size_t maxDeep);
 };
 
-class Grid4 : public Graph {
+class Grid4_old : public Graph_old {
         public:
-                explicit Grid4(size_t nodesNumber);
-                Grid4(size_t width, size_t height);
+                explicit Grid4_old(size_t nodesNumber);
+                Grid4_old(size_t width, size_t height);
         private:
                 void construct(size_t width, size_t height);
 };
 
-class Grid6 : public Graph {
+class Grid6_old : public Graph_old {
 public:
-        explicit Grid6(size_t nodesNumber);
-        Grid6(size_t width, size_t height);
+        explicit Grid6_old(size_t nodesNumber);
+        Grid6_old(size_t width, size_t height);
 private:
         void construct(size_t width, size_t height);
 };
 
-class Grid8 : public Graph {
+class Grid8_old : public Graph_old {
         public:
-                explicit Grid8(size_t nodesNumber);
-                Grid8(size_t width, size_t height);
+                explicit Grid8_old(size_t nodesNumber);
+                Grid8_old(size_t width, size_t height);
         private:
                 void construct(size_t width, size_t height);
 };
 
-class LPS : public Graph {
+class LPS_old : public Graph_old {
         public:
-                explicit LPS(size_t nodesNumber);
+                explicit LPS_old(size_t nodesNumber);
         private:
                 bool miller_rabin_pass(const size_t a, const size_t s,
                                                         const size_t d, const size_t nodesNumber);
@@ -81,14 +80,14 @@ class LPS : public Graph {
                 bool millerRabin(const size_t nodesNumber);
 };
 
-class Paley : public Graph {
+class Paley_old : public Graph_old {
         public:
-                explicit Paley(size_t nodesNumber);
+                explicit Paley_old(size_t nodesNumber);
 };
 
-class Margulis : public Graph {
+class Margulis_old : public Graph_old {
         public:
-                explicit Margulis(size_t nodesNumber);
+                explicit Margulis_old(size_t nodesNumber);
 };
 
 
@@ -104,7 +103,7 @@ class Margulis : public Graph {
 
 //template <typename WeightType = bool, bool isDense = true, bool isSymmetric = true> // incorrect defaults, needed only to test dense
 template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true> // correct defaults
-class Graph_blaze {
+class Graph {
 
 private:
     static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in old getNeighbours method, TODO remove
@@ -122,28 +121,29 @@ private:
         >::type MatrixType;
 
 public:
-    explicit Graph_blaze(size_t nodesNumber);
-    Graph_blaze();
-    ~Graph_blaze();
+    explicit Graph(size_t nodesNumber);
+    Graph();
+    Graph(const std::vector<std::pair<size_t, size_t>> & edgesPairs);
+    ~Graph();
 
     size_t getNodesNumber();
     bool isValid();
 
-    std::vector<std::vector<size_t>> getNeighbours(const size_t nodeIndex, const size_t maxDeep);
+    std::vector<std::vector<size_t>> getNeighboursOld(const size_t nodeIndex, const size_t maxDeep);
 
 //    std::vector<std::vector<size_t>> getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
 
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
-    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours(const size_t nodeIndex, const size_t maxDeep);
 
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
-    getNeighborsNew/*<WeightType, false, isSymmetric>*/(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours/*<WeightType, false, isSymmetric>*/(const size_t nodeIndex, const size_t maxDeep);
 
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
-    getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours(const size_t nodeIndex, const size_t maxDeep);
 
     MatrixType get_matrix();
 
@@ -166,10 +166,10 @@ protected:
 
 
 
-class Grid4_blaze : public Graph_blaze<> {
+class Grid4 : public Graph<> {
 public:
-    explicit Grid4_blaze(size_t nodesNumber);
-    Grid4_blaze(size_t width, size_t height);
+    explicit Grid4(size_t nodesNumber);
+    Grid4(size_t width, size_t height);
 private:
     void construct(size_t width, size_t height);
 };
@@ -177,10 +177,10 @@ private:
 
 
 
-class Grid6_blaze : public Graph_blaze<> {
+class Grid6 : public Graph<> {
 public:
-    explicit Grid6_blaze(size_t nodesNumber);
-    Grid6_blaze(size_t width, size_t height);
+    explicit Grid6(size_t nodesNumber);
+    Grid6(size_t width, size_t height);
 private:
     void construct(size_t width, size_t height);
 };
@@ -188,10 +188,10 @@ private:
 
 
 
-class Grid8_blaze : public Graph_blaze<> {
+class Grid8 : public Graph<> {
 public:
-    explicit Grid8_blaze(size_t nodesNumber);
-    Grid8_blaze(size_t width, size_t height);
+    explicit Grid8(size_t nodesNumber);
+    Grid8(size_t width, size_t height);
 private:
     void construct(size_t width, size_t height);
 };
@@ -199,17 +199,17 @@ private:
 
 
 
-class Paley_blaze : public Graph_blaze<> {
+class Paley : public Graph<> {
 public:
-    explicit Paley_blaze(size_t nodesNumber);
+    explicit Paley(size_t nodesNumber);
 };
 
 
 
 
-class LPS_blaze : public Graph_blaze<> {
+class LPS : public Graph<> {
 public:
-    explicit LPS_blaze(size_t nodesNumber);
+    explicit LPS(size_t nodesNumber);
 private:
     bool miller_rabin_pass(const size_t a, const size_t s,
                            const size_t d, const size_t nodesNumber);
@@ -220,15 +220,24 @@ private:
 
 
 
-class Margulis_blaze : public Graph_blaze<> {
+class Margulis : public Graph<> {
 public:
-    explicit Margulis_blaze(size_t nodesNumber);
+    explicit Margulis(size_t nodesNumber);
 };
 
 
 
 
-}
+// random weighted graph for usage as e. g. ESN reservoir, TODO implement
+
+class Random : public Graph<> {
+public:
+    explicit Random(size_t nodesNumber, double sparsity);
+};
+
+
+
+
 }
 }
 
