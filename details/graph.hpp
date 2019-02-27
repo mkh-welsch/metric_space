@@ -20,7 +20,7 @@ namespace graph {
 
 
 // -------
-// old Graph code, TODO remove
+// old Graph code, left for comparative testing only, TODO remove
 
 
 class Graph_old {
@@ -106,7 +106,7 @@ template <typename WeightType = bool, bool isDense = false, bool isSymmetric = t
 class Graph {
 
 private:
-    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in old getNeighbours method, TODO remove
+    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in getNeighboursOld, TODO remove or update so as in new method
 
     typedef typename std::conditional<
         isDense,
@@ -131,19 +131,17 @@ public:
 
     std::vector<std::vector<size_t>> getNeighboursOld(const size_t nodeIndex, const size_t maxDeep);
 
-//    std::vector<std::vector<size_t>> getNeighborsNew(const size_t nodeIndex, const size_t maxDeep);
-
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
-    getNeighbours(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours(const size_t nodeIndex, const size_t maxDeep); // not bool
 
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
-    getNeighbours/*<WeightType, false, isSymmetric>*/(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours(const size_t nodeIndex, const size_t maxDeep); // bool, not dense
 
     template <typename T = WeightType, bool denseFlag = isDense>
     typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
-    getNeighbours(const size_t nodeIndex, const size_t maxDeep);
+    getNeighbours(const size_t nodeIndex, const size_t maxDeep); // bool, dense
 
     MatrixType get_matrix();
 
@@ -152,13 +150,12 @@ public:
 protected:
     size_t nodesNumber;
     bool valid;
-//    std::vector<std::vector<size_t>> edges;
 
     MatrixType m;
 
     size_t modularPow(const size_t base, const size_t exponent, const size_t modulus);
 
-//    void buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs); // moved to public
+//    void buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs); // moved to public section
 
 };
 

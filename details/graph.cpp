@@ -411,7 +411,7 @@ Margulis_old::Margulis_old(size_t nodesNumber) : Graph_old(nodesNumber) {
 
 
 
-// Graph_blaze
+// Graph based on blaze-lib
 
 
 
@@ -459,13 +459,12 @@ Graph<WeightType, isDense, isSymmetric>::getNeighboursOld(const size_t index, co
 
     row_stack.push(index);
     iterator_stack.push(m.begin(index)); // stacks are ever processed together (so they are always of the same size)
-    // neighboursList[row_stack.top()].push_back(0);
+
     indices[row_stack.top()] = 0;
 
     size_t depth = 1;
-    // nodes[index] = depth;
 
-    while (true) // inoptimal order of node processing, better version is  getNeighborsNew
+    while (true)
     {
         if ( iterator_stack.top() == m.end(row_stack.top()) || depth > maxDeep ) // end of row or max depth reached
         {
@@ -484,14 +483,9 @@ Graph<WeightType, isDense, isSymmetric>::getNeighboursOld(const size_t index, co
 
             auto search = indices.find(row_stack.top());
             if (search == indices.end() || search->second > depth - 1) // node not exists or its depth is greater than current
-            // if (nodes[row_stack.top()] == 0 || nodes[row_stack.top()] > depth)
-            {
                 indices[row_stack.top()] = depth - 1; // write node into output
-                // neighboursList[depth - 1].push_back(row_stack.top()); // write node into output
-                // nodes[row_stack.top()] = depth;
-                // std::cout << "added node: " << row_stack.top() << "\n"; // output for DEBUG, TODO remove
-                // std::cout << "depth: " << depth - 1 << "\n";
-            }
+            //std::cout << "checked node: " << row_stack.top() << "\n"; // output for DEBUG, TODO remove
+            //std::cout << "depth: " << depth - 1 << "\n";
 
             continue; // prevent from a step along the level when entered the new level
         }
@@ -525,10 +519,8 @@ size_t Graph<WeightType, isDense, isSymmetric>::modularPow(const size_t base, co
 template <typename WeightType, bool isDense, bool isSymmetric>
 void Graph<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
 {
-    //std::vector<std::unordered_set<size_t>> edgesSets(nodesNumber);
-
     size_t max = 0;
-    for (const auto & [i, j]: edgesPairs) { // TODO optimize: pass max as parameter and remove loop
+    for (const auto & [i, j]: edgesPairs) { // TODO loop may be removed if max is passed as a parameter
         if (i > max)
             max = i;
         if (j > max)
@@ -552,7 +544,7 @@ void Graph<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::
             // std::cout << "adding to matrix: i=" << i << ", j=" << j << "\n";
         }
 
-        /* // old code. TODO on the optimization stage: restore faster insertion via .insert(...) with compile-time check/specialization
+        /* // old code. TODO on the final optimization stage: restore faster insertion via .insert(...) with compile-time check/specialization
         {
             // edgesSets[i].insert(j);
             // edgesSets[j].insert(i);
@@ -603,29 +595,26 @@ void Graph<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::
 
 template <typename WeightType, bool isDense, bool isSymmetric>
 template <typename T, bool denseFlag>
-typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
+typename std::enable_if_t<!std::is_same<T, bool>::value, std::vector<std::vector<size_t>>>
 Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-    // std::cout << "non-default value type specialization called\n";
+    //std::cout << "non-default value type specialization called\n";
     return std::vector<std::vector<size_t>>(0); // return empty if weighted, TODO implement weight-based metric if needed
 }
 
 
 template <typename WeightType, bool isDense, bool isSymmetric>
 template <typename T, bool denseFlag>
-//std::vector<std::vector<size_t>> Graph_blaze<WeightType, isDense, isSymmetric>::getNeighborsNew(const size_t index, const size_t maxDeep)
 typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
-Graph<WeightType, isDense, isSymmetric>::getNeighbours/*<WeightType, false, isSymmetric>*/(const size_t index, const size_t maxDeep)
+Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-    // std::cout << "Sparse & default value type specialization called\n";
+    std::cout << "Sparse & default value type specialization called\n"; // TODO remove
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
     if (index >= m.columns())
         return neighboursList;
 
-
-    // new ver
     std::vector<size_t> parents;
     std::vector<size_t> children;
     std::vector<bool> nodes = std::vector<bool>(m.columns(), false);
@@ -649,8 +638,8 @@ Graph<WeightType, isDense, isSymmetric>::getNeighbours/*<WeightType, false, isSy
                     neighboursList[depth].push_back(it->index()); // write node into output
                 children.push_back(it->index());
                 nodes[it->index()] = true;
-                // std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
-                // std::cout << "depth: " << depth << "\n";
+                //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
+                //std::cout << "depth: " << depth << "\n";
                 //*/
 
                 /* // code for dense, not appropriate for sparse due to m.end(...)
@@ -685,15 +674,15 @@ template <typename T, bool denseFlag>
 typename std::enable_if_t<std::is_same<T, bool>::value && denseFlag, std::vector<std::vector<size_t>>>
 Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-        // std::cout << "isDense & default value type specialization called\n";
+        // similar to sparse specialization except the way m elements are accessed
+
+        //std::cout << "isDense & default value type specialization called\n";
 
         std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
         if (index >= m.columns())
             return neighboursList;
 
-
-        // new ver, CODE DUBBING: similar to sparse specialization except the way m elements are accessed
         std::vector<size_t> parents;
         std::vector<size_t> children;
         std::vector<bool> nodes = std::vector<bool>(m.columns(), false);
@@ -719,7 +708,7 @@ Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const
                         neighboursList[depth].push_back(idx); // write node into output
                     children.push_back(idx);
                     nodes[idx] = true;
-                    //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
+                    //std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
                     //std::cout << "depth: " << depth << "\n";
                 }
             }
@@ -750,7 +739,6 @@ Graph<WeightType, isDense, isSymmetric>::get_matrix()
 
 // Grid4_blaze
 
-//template <bool isWeighted=false, bool isSymmetric = false, typename WeightType = char>
 Grid4::Grid4(size_t nodesNumber) : Graph<>(nodesNumber)
 {
     int s = sqrt(nodesNumber);
@@ -769,7 +757,6 @@ Grid4::Grid4(size_t width, size_t height) : Graph<>(width * height)
 
 void Grid4::construct(size_t width, size_t height)
 {
-    // edges.resize(width * height);
     unsigned long n_nodes = width*height;
     m.resize(n_nodes, n_nodes);
 
@@ -836,7 +823,6 @@ Grid6::Grid6(size_t width, size_t height) : Graph<>(width * height)
 
 void Grid6::construct(size_t width, size_t height)
 {
-    // edges.resize(width * height);
     unsigned long n_nodes = width*height;
     m.resize(n_nodes, n_nodes);
 
@@ -944,8 +930,6 @@ Grid8::Grid8(size_t width, size_t height) : Graph<>(width * height)
 
 void Grid8::construct(size_t width, size_t height)
 {
-//    edges.resize(width * height);
-//    std::cout << "Creating Grid8\n";
     unsigned long n_nodes = width*height;
     m.resize(n_nodes, n_nodes);
 
