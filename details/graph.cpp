@@ -483,7 +483,11 @@ Graph<WeightType, isDense, isSymmetric>::getNeighboursOld(const size_t index, co
 
             auto search = indices.find(row_stack.top());
             if (search == indices.end() || search->second > depth - 1) // node not exists or its depth is greater than current
+            {
                 indices[row_stack.top()] = depth - 1; // write node into output
+                //std::cout << "added node: " << row_stack.top() << "\n"; // output for DEBUG, TODO remove
+                //std::cout << "depth: " << depth - 1 << "\n";
+            }
             //std::cout << "checked node: " << row_stack.top() << "\n"; // output for DEBUG, TODO remove
             //std::cout << "depth: " << depth - 1 << "\n";
 
@@ -608,7 +612,7 @@ template <typename T, bool denseFlag>
 typename std::enable_if_t<std::is_same<T, bool>::value && !denseFlag, std::vector<std::vector<size_t>>>
 Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const size_t maxDeep)
 {
-    std::cout << "Sparse & default value type specialization called\n"; // TODO remove
+    //std::cout << "Sparse & default value type specialization called\n";
 
     std::vector<std::vector<size_t>> neighboursList(maxDeep+1);
 
@@ -635,11 +639,13 @@ Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const
             {
                 //* // tested on sparse only
                 if (!nodes[it->index()])
+                {
                     neighboursList[depth].push_back(it->index()); // write node into output
-                children.push_back(it->index());
-                nodes[it->index()] = true;
-                //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
-                //std::cout << "depth: " << depth << "\n";
+                    children.push_back(it->index());
+                    nodes[it->index()] = true;
+                    //std::cout << "added node: " << it->index() << "\n"; // output for DEBUG, TODO remove
+                    //std::cout << "depth: " << depth << "\n";
+                }
                 //*/
 
                 /* // code for dense, not appropriate for sparse due to m.end(...)
@@ -647,14 +653,16 @@ Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const
                 if (m(el, idx) != 1)
                     continue;
                 if (!nodes[idx])
+                {
                     neighboursList[depth].push_back(idx); // write node into output
-                children.push_back(idx);
-                nodes[idx] = true;
-                std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
-                std::cout << "parent: " << el << "\n";
-                std::cout << "depth: " << depth << "\n";
-                std::cout << "value: " << m(el, idx) << "\n";
-                std::cout << "last index in row: " << m.end(el) - m.begin(el) << "\n";
+                    children.push_back(idx);
+                    nodes[idx] = true;
+                    std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
+                    std::cout << "parent: " << el << "\n";
+                    std::cout << "depth: " << depth << "\n";
+                    std::cout << "value: " << m(el, idx) << "\n";
+                    std::cout << "last index in row: " << m.end(el) - m.begin(el) << "\n";
+                }
 
                 //*/
             }
@@ -705,11 +713,13 @@ Graph<WeightType, isDense, isSymmetric>::getNeighbours(const size_t index, const
                     if (m(el, idx) != 1)
                         continue;
                     if (!nodes[idx])
+                    {
                         neighboursList[depth].push_back(idx); // write node into output
-                    children.push_back(idx);
-                    nodes[idx] = true;
-                    //std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
-                    //std::cout << "depth: " << depth << "\n";
+                        children.push_back(idx);
+                        nodes[idx] = true;
+                        //std::cout << "added node: " << idx << "\n"; // output for DEBUG, TODO remove
+                        //std::cout << "depth: " << depth << "\n";
+                    }
                 }
             }
 

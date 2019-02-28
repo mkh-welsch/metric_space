@@ -65,16 +65,16 @@ int main()
 //    auto g = metric::graph::Paley(h*w);
 //    auto g = metric::graph::LPS(h*w); // TODO FIX: no nodes in graph
 
-    std::cout << g.get_matrix() << "\n";
+    //std::cout << g.get_matrix() << "\n";
 
-    std::cout << "new:\n";
+    std::cout << "based on stack:\n";
 
     std::vector<std::vector<size_t>> neighbors = g.getNeighboursOld(node, max_depth);
     for (size_t i=0; i<neighbors.size(); i++)
         for (size_t j=0; j<neighbors[i].size(); j++)
             std::cout << i << " | " << neighbors[i][j] << "\n";
 
-    std::cout << "new modified:\n";
+    std::cout << "based on vector swap:\n";
 
     std::vector<std::vector<size_t>> neighborsNew = g.getNeighbours(node, max_depth);
     for (size_t i=0; i<neighborsNew.size(); i++)
@@ -89,7 +89,7 @@ int main()
 //    auto g_old = metric::graph::Paley_old(h*w);
 //    auto g_old = metric::graph::LPS_old(h*w); // TODO FIX: no nodes in graph
 
-    std::cout << "old:" << "\n";
+    std::cout << "old recursion code:" << "\n";
 
     std::vector<std::vector<size_t>> neighbors_old = g_old.getNeighbours(node, max_depth);
     for (size_t i=0; i<neighbors_old.size(); i++)
@@ -110,7 +110,7 @@ int main()
 //    g_custom.buildEdges(edges);
 
     std::cout << "\ncustom graph:\n";
-    std::cout << g_custom.get_matrix() << "\n";
+    //std::cout << g_custom.get_matrix() << "\n";
 
     std::vector<std::vector<size_t>> neighborsNewCustom = g_custom.getNeighbours(node, max_depth);
     for (size_t i=0; i<neighborsNewCustom.size(); i++)
