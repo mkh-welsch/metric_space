@@ -81,7 +81,7 @@ int main()
         for (size_t j=0; j<neighborsNew[i].size(); j++)
             std::cout << i << " | " << neighborsNew[i][j] << "\n";
 
-
+    /*
     auto g_old = metric::graph::Grid4_old(h, w);
 //    auto g_old = metric::graph::Grid6_old(h, w);
 //    auto g_old = metric::graph::Grid8_old(h, w);

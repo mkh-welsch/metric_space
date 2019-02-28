@@ -19,6 +19,7 @@ namespace metric {
 namespace graph {
 
 
+/*
 // -------
 // old Graph code, left for comparative testing only, TODO remove
 
@@ -94,12 +95,12 @@ class Margulis_old : public Graph_old {
 
 // end of old Graph code
 // -------
+*/
 
 
 
 
-
-// Graph_blaze
+// Graph based on blaze-lib
 
 //template <typename WeightType = bool, bool isDense = true, bool isSymmetric = true> // incorrect defaults, needed only to test dense
 template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true> // correct defaults

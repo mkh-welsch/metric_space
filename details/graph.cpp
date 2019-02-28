@@ -1,13 +1,13 @@
 #include "graph.hpp"
 //#include "graph/connected_components.hpp"
 
-#include <unordered_set> // for old Graph code, TODO remove
+//#include <unordered_set> // for old Graph code, TODO remove
 
 
 namespace metric {
 namespace graph {
 
-
+/*
 // -------
 // old Graph code, TODO remove
 
@@ -406,7 +406,7 @@ Margulis_old::Margulis_old(size_t nodesNumber) : Graph_old(nodesNumber) {
 
 // end of old Graph code
 // -------
-
+*/
 
 
 
@@ -567,11 +567,6 @@ void Graph<WeightType, isDense, isSymmetric>::buildEdges(const std::vector<std::
 //                    m.insert(i, j, 1);
 //                if (m.find(j, i) == m.end(j))
 //                    m.insert(j, i, 1);
-
-                // code for debugging, TODO remove
-//                if (i > 7 || j > 7)
-//                    std::cout << "exceeded\n";
-                // end of code for debugging
 
                 //if (i < max && j < max)
                 {
@@ -751,7 +746,7 @@ Graph<WeightType, isDense, isSymmetric>::get_matrix()
 
 Grid4::Grid4(size_t nodesNumber) : Graph<>(nodesNumber)
 {
-    int s = sqrt(nodesNumber);
+    size_t s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
         valid = false;
     } else {
@@ -818,7 +813,7 @@ void Grid4::construct(size_t width, size_t height)
 
 Grid6::Grid6(size_t nodesNumber) : Graph<>(nodesNumber)
 {
-    int s = sqrt(nodesNumber);
+    size_t s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
         valid = false;
     } else {
@@ -925,7 +920,7 @@ void Grid6::construct(size_t width, size_t height)
 
 Grid8::Grid8(size_t nodesNumber) : Graph<>(nodesNumber)
 {
-    int s = sqrt(nodesNumber);
+    size_t s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
         valid = false;
     } else {
@@ -1001,11 +996,11 @@ Paley::Paley(size_t nodesNumber) : Graph<>(nodesNumber)
     size_t l = (nodesNumber - 1) / 2;
     squareList.reserve(l);
 
-    for (auto i = 0; i < l; ++i) {
+    for (size_t i = 0; i < l; ++i) {
         squareList.push_back(i * i % nodesNumber);
     }
 
-    for (auto i = 0; i < nodesNumber; ++i) {
+    for (size_t i = 0; i < nodesNumber; ++i) {
         for (auto j: squareList) {
             edgesPairs.emplace_back(i, (i + j) % nodesNumber);
         }
@@ -1080,7 +1075,8 @@ bool LPS::miller_rabin_pass(const size_t a, const size_t s,
                 return true;
         }
 
-        for (auto i = 0; i < s - 1; ++i) {
+//        for (auto i = 0; i < s - 1; ++i) {
+        for (size_t i = 0; i < s - 1; ++i) {
                 if (p == nodesNumber - 1) {
                         return true;
                 }
@@ -1098,7 +1094,7 @@ bool LPS::miller_rabin_pass(const size_t a, const size_t s,
 // Margulis_blaze
 
 Margulis::Margulis(size_t nodesNumber) : Graph<>(nodesNumber) {
-    int s = sqrt(nodesNumber);
+    size_t s = sqrt(nodesNumber);
     if ((s * s) != nodesNumber) {
         valid = false;
     } else {
