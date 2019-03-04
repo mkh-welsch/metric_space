@@ -1,4 +1,4 @@
-/* 
+/*
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -125,6 +125,7 @@ public:
     explicit Graph(size_t nodesNumber);
     Graph();
     Graph(const std::vector<std::pair<size_t, size_t>> & edgesPairs);
+    Graph(MatrixType && matrix);
     ~Graph();
 
     size_t getNodesNumber();
@@ -133,7 +134,7 @@ public:
     std::vector<std::vector<size_t>> getNeighboursOld(const size_t nodeIndex, const size_t maxDeep);
 
     template <typename T = WeightType, bool denseFlag = isDense>
-    typename std::enable_if_t<!std::is_same<T, bool>::value /*&& !denseFlag*/, std::vector<std::vector<size_t>>>
+    typename std::enable_if_t<!std::is_same<T, bool>::value, std::vector<std::vector<size_t>>>
     getNeighbours(const size_t nodeIndex, const size_t maxDeep); // not bool
 
     template <typename T = WeightType, bool denseFlag = isDense>
@@ -236,8 +237,29 @@ public:
 
 
 
+
+// Graph factory based on Blaze matrix
+
+template <class ValueType>
+Graph<ValueType, false, false> make_graph(blaze::CompressedMatrix<ValueType> && matrix);
+
+template <class ValueType>
+Graph<ValueType, false, true> make_graph(blaze::SymmetricMatrix<blaze::CompressedMatrix<ValueType>> && matrix);
+
+template <class ValueType>
+Graph<ValueType, true, false> make_graph(blaze::DynamicMatrix<ValueType> && matrix);
+
+template <class ValueType>
+Graph<ValueType, true, true> make_graph(blaze::SymmetricMatrix<blaze::DynamicMatrix<ValueType>> && matrix);
+
+
+
+
 }
 }
+
+
+
 
 
 #include "graph.cpp"

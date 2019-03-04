@@ -41,6 +41,42 @@ std::vector<std::pair<size_t, size_t>> createGrid4(size_t width, size_t height)
 }
 
 
+//using VType = bool;
+using VType = float;
+
+//using MType = blaze::DynamicMatrix<VType>;
+using MType = blaze::CompressedMatrix<VType>;
+//using MType = blaze::SymmetricMatrix<blaze::DynamicMatrix<VType>>;
+//using MType = blaze::SymmetricMatrix<blaze::CompressedMatrix<VType>>;
+
+
+
+MType createGrid4Matrix(const std::vector<std::pair<size_t, size_t>> &edgesPairs)
+{
+    MType m;
+    size_t max = 0;
+    for (const auto & [i, j]: edgesPairs) {
+        if (i > max)
+            max = i;
+        if (j > max)
+            max = j;
+    }
+
+    max = max + 1;
+
+    m.resize((unsigned long)max, (unsigned long)max);
+    m.reset();
+
+    for (const auto & [i, j]: edgesPairs) {
+        if (i != j)
+        {
+            m(i, j) = 1;
+            // std::cout << "adding to matrix: i=" << i << ", j=" << j << "\n";
+        }
+   }
+
+    return m;
+}
 
 
 
@@ -110,7 +146,7 @@ int main()
 //    g_custom.buildEdges(edges);
 
     std::cout << "\ncustom graph:\n";
-    //std::cout << g_custom.get_matrix() << "\n";
+    std::cout << g_custom.get_matrix() << "\n";
 
     std::vector<std::vector<size_t>> neighborsNewCustom = g_custom.getNeighbours(node, max_depth);
     for (size_t i=0; i<neighborsNewCustom.size(); i++)
@@ -123,6 +159,13 @@ int main()
 //    std::cout << g_custom.get_matrix() << "\n";
 
 
+    // testing factory
+
+    std::cout << "\ntesting factory\n";
+
+    auto m = createGrid4Matrix(edges);
+    auto g_custom_m = metric::graph::make_graph(std::move(m));
+    std::cout << g_custom_m.get_matrix() << "\n";
 
     return 0;
 

@@ -428,6 +428,12 @@ Graph<WeightType, isDense, isSymmetric>::Graph(const std::vector<std::pair<size_
 }
 
 template <typename WeightType, bool isDense, bool isSymmetric>
+Graph<WeightType, isDense, isSymmetric>::Graph(MatrixType && matrix) /*: m(matrix)*/
+{
+    m = std::move(matrix);
+}
+
+template <typename WeightType, bool isDense, bool isSymmetric>
 Graph<WeightType, isDense, isSymmetric>::~Graph() = default;
 
 template <typename WeightType, bool isDense, bool isSymmetric>
@@ -1113,6 +1119,39 @@ Margulis::Margulis(size_t nodesNumber) : Graph<>(nodesNumber) {
 
         valid = true;
     }
+}
+
+
+
+
+// Graph factory based on Blaze matrix
+
+template <class ValueType>
+Graph<ValueType, false, false> make_graph(blaze::CompressedMatrix<ValueType> && matrix)
+{
+    //std::cout << "blaze::CompressedMatrix<ValueType>\n";
+    return Graph<ValueType, false, false>(std::move(matrix));
+}
+
+template <class ValueType>
+Graph<ValueType, false, true> make_graph(blaze::SymmetricMatrix<blaze::CompressedMatrix<ValueType>> && matrix)
+{
+    //std::cout << "blaze::SymmetricMatrix<blaze::CompressedMatrix<ValueType>>\n";
+    return Graph<ValueType, false, true>(std::move(matrix));
+}
+
+template <class ValueType>
+Graph<ValueType, true, false> make_graph(blaze::DynamicMatrix<ValueType> && matrix)
+{
+    //std::cout << "blaze::DynamicMatrix<ValueType>\n";
+    return Graph<ValueType, true, false>(std::move(matrix));
+}
+
+template <class ValueType>
+Graph<ValueType, true, true> make_graph(blaze::SymmetricMatrix<blaze::DynamicMatrix<ValueType>> && matrix)
+{
+    //std::cout << "blaze::SymmetricMatrix<blaze::DynamicMatrix<ValueType>>\n";
+    return Graph<ValueType, true, true>(std::move(matrix));
 }
 
 
