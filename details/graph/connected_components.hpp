@@ -206,10 +206,7 @@ std::vector<Matrix> Cracker<Matrix>::GetAllComponents(const Matrix &input, const
 	ActiveVertices.assign(input.rows(), true);
 
 	ActiveNum = input.rows();
-	//PropagationTrees(input.rows(),input.rows(),0);
 	PropagationTrees.resize(input.rows(), input.rows());
-
-	std::cout << PropagationTrees << std::endl;
 	PropagationTrees = false;
 
 	Matrix tempG = input;
@@ -227,7 +224,7 @@ std::vector<Matrix> Cracker<Matrix>::GetAllComponents(const Matrix &input, const
 	sz = Count ? (Count < compsz ? Count : compsz) : compsz;
 	Components.resize(sz);
 
-	std::vector<Matrix> matrices(Components.size(), Matrix(input.rows(), input.rows()));
+	std::vector<Matrix> matrices(Components.size(), Matrix(input.rows(), input.rows(), false));
 
 	size_t k = 0;
 
@@ -262,5 +259,3 @@ Matrix largest_connected_component(const Matrix &input) {
 
 	return CA.GetAllComponents(input, size_t(1))[0];
 }
-
-#endif // headerguard
