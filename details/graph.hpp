@@ -19,95 +19,15 @@ namespace metric {
 namespace graph {
 
 
-/*
-// -------
-// old Graph code, left for comparative testing only, TODO remove
-
-
-class Graph_old {
-        public:
-                explicit Graph_old(size_t nodesNumber);
-                ~Graph_old();
-
-                size_t getNodesNumber();
-                bool isValid();
-
-        std::vector<std::vector<size_t>> getNeighbours(const size_t nodeIndex, const size_t maxDeep);
-
-        protected:
-                size_t nodesNumber;
-                bool valid;
-                std::vector<std::vector<size_t>> edges;
-
-                size_t modularPow(const size_t base, const size_t exponent, const size_t modulus);
-
-                void buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs);
-
-                void neighboursWalk(const size_t index, std::unordered_map<size_t, size_t> &indexes, size_t deep,
-                                                        const size_t maxDeep);
-};
-
-class Grid4_old : public Graph_old {
-        public:
-                explicit Grid4_old(size_t nodesNumber);
-                Grid4_old(size_t width, size_t height);
-        private:
-                void construct(size_t width, size_t height);
-};
-
-class Grid6_old : public Graph_old {
-public:
-        explicit Grid6_old(size_t nodesNumber);
-        Grid6_old(size_t width, size_t height);
-private:
-        void construct(size_t width, size_t height);
-};
-
-class Grid8_old : public Graph_old {
-        public:
-                explicit Grid8_old(size_t nodesNumber);
-                Grid8_old(size_t width, size_t height);
-        private:
-                void construct(size_t width, size_t height);
-};
-
-class LPS_old : public Graph_old {
-        public:
-                explicit LPS_old(size_t nodesNumber);
-        private:
-                bool miller_rabin_pass(const size_t a, const size_t s,
-                                                        const size_t d, const size_t nodesNumber);
-
-                bool millerRabin(const size_t nodesNumber);
-};
-
-class Paley_old : public Graph_old {
-        public:
-                explicit Paley_old(size_t nodesNumber);
-};
-
-class Margulis_old : public Graph_old {
-        public:
-                explicit Margulis_old(size_t nodesNumber);
-};
-
-
-
-// end of old Graph code
-// -------
-*/
-
-
-
 
 // Graph based on blaze-lib
 
-//template <typename WeightType = bool, bool isDense = true, bool isSymmetric = true> // incorrect defaults, needed only to test dense
-template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true> // correct defaults
+
+template <typename WeightType = bool, bool isDense = false, bool isSymmetric = true>
 class Graph {
 
 private:
-    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in getNeighboursOld, TODO remove or update so as in new method
+    static constexpr bool isWeighted = !std::is_same<WeightType, bool>::value; // used only in getNeighboursOld, TODO remive if method removed
 
     typedef typename std::conditional<
         isDense,
@@ -156,8 +76,6 @@ protected:
     MatrixType m;
 
     size_t modularPow(const size_t base, const size_t exponent, const size_t modulus);
-
-//    void buildEdges(const std::vector<std::pair<size_t, size_t>> &edgesPairs); // moved to public section
 
 };
 

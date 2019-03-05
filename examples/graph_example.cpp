@@ -41,12 +41,12 @@ std::vector<std::pair<size_t, size_t>> createGrid4(size_t width, size_t height)
 }
 
 
-//using VType = bool;
-using VType = float;
+using VType = bool;
+//using VType = float;
 
 //using MType = blaze::DynamicMatrix<VType>;
-using MType = blaze::CompressedMatrix<VType>;
-//using MType = blaze::SymmetricMatrix<blaze::DynamicMatrix<VType>>;
+//using MType = blaze::CompressedMatrix<VType>;
+using MType = blaze::SymmetricMatrix<blaze::DynamicMatrix<VType>>;
 //using MType = blaze::SymmetricMatrix<blaze::CompressedMatrix<VType>>;
 
 
@@ -117,22 +117,7 @@ int main()
         for (size_t j=0; j<neighborsNew[i].size(); j++)
             std::cout << i << " | " << neighborsNew[i][j] << "\n";
 
-    /*
-    auto g_old = metric::graph::Grid4_old(h, w);
-//    auto g_old = metric::graph::Grid6_old(h, w);
-//    auto g_old = metric::graph::Grid8_old(h, w);
-//    auto g_old = metric::graph::Margulis_old(h*w);
-//    auto g_old = metric::graph::Paley_old(h*w);
-//    auto g_old = metric::graph::LPS_old(h*w); // TODO FIX: no nodes in graph
 
-    std::cout << "old recursion code:" << "\n";
-
-    std::vector<std::vector<size_t>> neighbors_old = g_old.getNeighbours(node, max_depth);
-    for (size_t i=0; i<neighbors_old.size(); i++)
-        for (size_t j=0; j<neighbors_old[i].size(); j++)
-            std::cout << i << " | " << neighbors_old[i][j] << "\n";
-
-    //*/
 
     // testing template parameters
 
@@ -142,7 +127,7 @@ int main()
 //    edges.emplace_back(2, 0);
     std::vector<std::pair<size_t, size_t>> edges = createGrid4(h, w);
 
-    auto g_custom = metric::graph::Graph<bool, true, true>(edges); // edge value type = bool, isDense = false, isSymmetric = true
+    auto g_custom = metric::graph::Graph<char, true, false>(edges); // edge value type = bool, isDense = false, isSymmetric = true
 //    g_custom.buildEdges(edges);
 
     std::cout << "\ncustom graph:\n";
@@ -152,11 +137,6 @@ int main()
     for (size_t i=0; i<neighborsNewCustom.size(); i++)
         for (size_t j=0; j<neighborsNewCustom[i].size(); j++)
             std::cout << i << " | " << neighborsNewCustom[i][j] << "\n";
-
-//    auto m = g_custom.get_matrix();
-//    m(0, 0) = true;
-//    std::cout << m << "\n";
-//    std::cout << g_custom.get_matrix() << "\n";
 
 
     // testing factory
