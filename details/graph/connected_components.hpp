@@ -207,12 +207,12 @@ std::vector<Matrix> Cracker<Matrix>::GetAllComponents(const Matrix &input, const
 	ActiveVertices.assign(input.rows(), true);
 
 	ActiveNum = input.rows();
-	//PropagationTrees(input.rows(),input.rows(),0);
 	PropagationTrees.resize(input.rows(), input.rows());
 
 	std::cout << PropagationTrees << std::endl;
         //PropagationTrees = false; // original code, commentad by Max Filippov
         PropagationTrees.reset(); // added by Max Filippov to support more types of matrices
+
 
 	Matrix tempG = input;
 
@@ -229,7 +229,7 @@ std::vector<Matrix> Cracker<Matrix>::GetAllComponents(const Matrix &input, const
 	sz = Count ? (Count < compsz ? Count : compsz) : compsz;
 	Components.resize(sz);
 
-	std::vector<Matrix> matrices(Components.size(), Matrix(input.rows(), input.rows()));
+	std::vector<Matrix> matrices(Components.size(), Matrix(input.rows(), input.rows(), false));
 
 	size_t k = 0;
 
