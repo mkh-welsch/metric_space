@@ -73,7 +73,8 @@ void Cracker<Matrix>::ProcessGraph(Matrix &tempGraph)
 		}
 	}
 	//Pruning 
-	tempGraph = 0;
+        //tempGraph = 0; // original code, disabled by Max Filippov
+        tempGraph.reset(); // added by Max Filippov in order to support more types of matrices
 
 	//Min selection
 	for (size_t i = 0; i != directH.rows(); ++i) {
@@ -210,7 +211,8 @@ std::vector<Matrix> Cracker<Matrix>::GetAllComponents(const Matrix &input, const
 	PropagationTrees.resize(input.rows(), input.rows());
 
 	std::cout << PropagationTrees << std::endl;
-	PropagationTrees = false;
+        //PropagationTrees = false; // original code, commentad by Max Filippov
+        PropagationTrees.reset(); // added by Max Filippov to support more types of matrices
 
 	Matrix tempG = input;
 

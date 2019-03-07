@@ -1,7 +1,7 @@
 #include <iostream>
 #include "details/graph.hpp"
 
-
+#include "details/graph/connected_components.hpp"
 
 
 std::vector<std::pair<size_t, size_t>> createGrid4(size_t width, size_t height)
@@ -45,8 +45,8 @@ using VType = bool;
 //using VType = float;
 
 //using MType = blaze::DynamicMatrix<VType>;
-//using MType = blaze::CompressedMatrix<VType>;
-using MType = blaze::SymmetricMatrix<blaze::DynamicMatrix<VType>>;
+using MType = blaze::CompressedMatrix<VType>;
+//using MType = blaze::SymmetricMatrix<blaze::DynamicMatrix<VType>>;
 //using MType = blaze::SymmetricMatrix<blaze::CompressedMatrix<VType>>;
 
 
@@ -145,7 +145,35 @@ int main()
 
     auto m = createGrid4Matrix(edges);
     auto g_custom_m = metric::graph::make_graph(std::move(m));
+
     std::cout << g_custom_m.get_matrix() << "\n";
+
+
+    // connected components test
+
+
+    std::vector<std::pair<size_t, size_t>> edges2;
+    edges2.emplace_back(0, 1);
+    edges2.emplace_back(1, 2);
+    edges2.emplace_back(2, 0);
+    edges2.emplace_back(3, 4); // 2nd (weakly) connected component
+
+//    auto g_custom_m2 = metric::graph::Graph<bool, true, false>(edges2); // type, isDense, isSymmetric
+    auto g_custom_m2 = metric::graph::Graph<float, true, false>(edges2); // type, isDense, isSymmetric
+
+    std::cout << g_custom_m2.get_matrix() << "\n";
+
+    auto m2 = g_custom_m2.get_matrix();
+    std::cout << m2 << "\n";
+
+//    auto cr = Cracker<blaze::CompressedMatrix<VType>>(); // we can create matrix of non-symmetric type only
+    auto cr = Cracker<blaze::DynamicMatrix<VType>>(); // works in the same way
+
+//    auto components = cr.GetAllComponents(g_custom_m.get_matrix(), 0);
+    auto components = cr.GetAllComponents(m2, 0);
+//    auto components = cr.GetAllComponents(m, 5);
+
+    std::cout << "number of components: " << components.size() << "\n";
 
     return 0;
 
