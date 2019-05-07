@@ -147,11 +147,17 @@ public:
 
 // random weighted graph for usage as e. g. ESN reservoir, TODO implement
 
-class Random : public Graph<> {
+template <typename WType, bool isDense>
+class RandomUniform : public Graph<WType, isDense, false> {
+private:
+    //template <typename MType>
+    void fill(blaze::CompressedMatrix<WType> & matrix, WType lower_bound, WType upper_bound, int nConections);
+    void fill(blaze::DynamicMatrix<WType> & matrix, WType lower_bound, WType upper_bound, int nConections);
+    template <typename MType>
+    void fill(MType & matrix, WType lower_bound, WType upper_bound);
 public:
-    explicit Random(size_t nodesNumber, double sparsity);
+    RandomUniform(size_t nNodes, WType lower_bound = -1, WType upper_bound = -1, int nConections = 0);
 };
-
 
 
 

@@ -666,6 +666,118 @@ Margulis::Margulis(size_t nodesNumber) : Graph<>(nodesNumber) {
 
 
 
+// Random with constant nummber of connections
+
+template <typename WType, bool isDense>
+RandomUniform<WType, isDense>::RandomUniform(size_t nNodes, WType lower_bound, WType upper_bound, int nConnections)
+    : Graph<WType, isDense, false>(nNodes) {
+    // TODO implement
+
+    using MType = typename std::conditional<
+        isDense,
+        blaze::DynamicMatrix<WType>,
+        blaze::CompressedMatrix<WType>
+        >::type;
+
+    this->m = MType(nNodes, nNodes);
+//    std::default_random_engine rgen;
+//    auto uniform_int = std::uniform_int_distribution<int>(0, nNodes-1);
+//    auto uniform_double = std::uniform_real_distribution<double>(lower_bound, upper_bound);
+//    int count;
+//    size_t r_row, r_col;
+//    for (r_col = 0; r_col < nNodes; r_col++)
+//    {
+//        for (count = 0; count < nConnections; count++)
+//        {
+//            r_row = uniform_int(rgen);
+//            assert(r_row < nNodes && r_col < nNodes); // debug code
+//            if (this->m(r_row, r_col) == 0) // TODO optimize comparison of doubles!!
+//                this->m(r_row, r_col) = uniform_double(rgen);
+//            else
+//                count--; // retry
+//        }
+//    }
+    if (nConnections > 0)
+        this->fill(this->m, lower_bound, upper_bound, nConnections);
+    else
+        this->fill(this->m, lower_bound, upper_bound);
+
+    this->valid = true;
+}
+
+
+
+template <typename WType, bool isDense> //
+void RandomUniform<WType, isDense>::fill(blaze::DynamicMatrix<WType> & matrix, WType lower_bound, WType upper_bound, int nConnections)
+{
+    std::default_random_engine rgen;
+    size_t nNodes = matrix.columns();
+    assert(nNodes == matrix.rows());
+    auto uniform_int = std::uniform_int_distribution<int>(0, nNodes-1);
+    auto uniform_double = std::uniform_real_distribution<double>(lower_bound, upper_bound);
+    int count;
+    size_t r_row, r_col;
+    for (r_col = 0; r_col < nNodes; r_col++)
+    {
+        for (count = 0; count < nConnections; count++)
+        {
+            r_row = uniform_int(rgen);
+            if (matrix(r_row, r_col) == 0) // TODO profile comparison of doubles, try replacing by lookup in vector of bools
+                matrix(r_row, r_col) = uniform_double(rgen);
+            else
+                count--; // retry
+        }
+    }
+}
+
+
+
+template <typename WType, bool isDense> // optimized overload for compressed matrix
+void RandomUniform<WType, isDense>::fill(blaze::CompressedMatrix<WType> & matrix, WType lower_bound, WType upper_bound, int nConnections)
+{
+    std::default_random_engine rgen;
+    size_t nNodes = matrix.columns();
+    assert(nNodes == matrix.rows());
+    auto uniform_int = std::uniform_int_distribution<int>(0, nNodes-1);
+    auto uniform_double = std::uniform_real_distribution<double>(lower_bound, upper_bound);
+    int count;
+    size_t r_row, r_col;
+    for (r_col = 0; r_col < nNodes; r_col++)
+    {
+        for (count = 0; count < nConnections; count++)
+        {
+            r_row = uniform_int(rgen);
+            if (matrix.find(r_row, r_col) == matrix.end(r_row)) // find works for compressed matrix only
+                matrix.insert(r_row, r_col, uniform_double(rgen));
+            else
+                count--; // retry
+        }
+    }
+}
+
+
+
+template <typename WType, bool isDense> // total fullfilling for both dense and sparse matrices
+template <typename MType>
+void RandomUniform<WType, isDense>::fill(MType & matrix, WType lower_bound, WType upper_bound)
+{
+    std::default_random_engine rgen;
+    size_t nNodes = matrix.columns();
+    assert(nNodes == matrix.rows());
+    auto uniform_double = std::uniform_real_distribution<double>(lower_bound, upper_bound);
+    size_t r_row, r_col;
+    for (r_row = 0; r_row < nNodes; r_row++)
+        for (r_col = 0; r_col < nNodes; r_col++)
+        {
+            matrix(r_row, r_col) = uniform_double(rgen);
+        }
+}
+
+
+
+
+
+
 
 // Graph factory based on Blaze matrix of 4 allowed types
 

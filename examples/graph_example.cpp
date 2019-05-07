@@ -175,6 +175,19 @@ int main()
 
     std::cout << "number of components: " << components.size() << "\n";
 
+
+
+
+    // RandomUniform test
+
+    auto g_random = metric::graph::RandomUniform<double, false>(15, -1, 1, 5);
+    //template parameters: ValueType, isDense
+    std::cout << "Random graph:\n" << g_random.get_matrix() << "\n";
+
+
+
+
+
     return 0;
 
 }
